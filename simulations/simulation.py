@@ -14,7 +14,7 @@ def B_wire(r, r0, I):
     z_hat = np.array([0, 0, 1])
     direction = np.cross(z_hat, dist_vec)
     B_hat = direction / np.linalg.norm(direction)
-    mu2pi = 2e+2  # mu_0 / 2pi (approx) # FIXME: Need to scale this
+    mu2pi = 2e+2  # mu_0 / 2pi (approx), yields result in nanotesla
     dist = np.linalg.norm(dist_vec)
     return mu2pi * I / dist * B_hat
 
@@ -88,7 +88,10 @@ def naive(f, t_bounds, y0):
 # plt.show()
 
 sol = solve_ivp(f, [-100, 100], [0, 1/2, 0], method="LSODA")
-print(sol.t)
-print(sol.y)
+# print(sol.t)
+# print(sol.y)
+Sf = [sol.y[i][-1] for i in range(3)]
+print(f"Number of f evals: {sol.nfev}")
+print(Sf)
 
 print(naive(f, [-100, 100], [0, 1/2, 0]))
