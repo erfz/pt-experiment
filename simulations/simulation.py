@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.integrate import RK45, solve_ivp
+from scipy.integrate import solve_ivp
 
 
 def B_wire(r, r0, I):
@@ -53,7 +53,8 @@ def func(v, d, I1, I2, t, S):
     [d], [I1], [I2] same as in B_two_wires
     """
     x = v * t  # t = 0 corresponds to origin
-    c = 2 * -9.162e-2  # FIXME: justify value
+    # mu_n (neutron) / h-bar scaled so that c*S x B (in nT) is in h-bar/second
+    c = 2 * -9.162e-2
     return np.cross(c*S, B_two_wires([x, 0], d, I1, I2))
 
 
@@ -73,25 +74,28 @@ I2 = -10
 def f(t, S): return func(v, d, I1, I2, t, S)
 
 
-def naive(f, t_bounds, y0):
+def naive(f, t_bounds, y0, num_pts):
+    """Converges slowly"""
     t0, tf = t_bounds
     y = np.array(y0)
-    range, step = np.linspace(t0, tf, 100000, retstep=True)
+    range, step = np.linspace(t0, tf, num_pts, retstep=True)
     for t in range:
         y += step * f(t, y)
     return y
 
 
-# range = np.linspace(-100, 100, 1000)
-# By = [B_two_wires([x, 0], d, I1, I2)[0] for x in range]
-# plt.plot(range, By)
+xs = np.linspace(-100, 100, 1000)
+By = [B_two_wires([x, 0], d, I1, I2)[0] for x in xs]
+plt.plot(xs, By)
 # plt.show()
 
-sol = solve_ivp(f, [-100, 100], [0, 1/2, 0], method="LSODA")
-# print(sol.t)
-# print(sol.y)
+rtol, atol = (1e-8, 1e-8)
+sol = solve_ivp(f, [-100, 100], [0, 1/2, 0],
+                method="LSODA", rtol=rtol, atol=atol)
 Sf = [sol.y[i][-1] for i in range(3)]
+
 print(f"Number of f evals: {sol.nfev}")
+print(f"Number of time points: {len(sol.t)}")
 print(Sf)
 
-print(naive(f, [-100, 100], [0, 1/2, 0]))
+# print(naive(f, [-100, 100], [0, 1/2, 0], 100000))
