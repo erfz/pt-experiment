@@ -45,17 +45,16 @@ def B_two_wires(r, d, I1, I2):
     return B_tot(r, wires)
 
 
-def func(v, d, I1, I2, t, S):
+def rhs(t, S, B, v):
     """
     [t] is time
     [S] is spin vector
-    [v] is speed
-    [d], [I1], [I2] same as in B_two_wires
+    [B] is B-field function B(r, t) (must return results in nanotesla)
     """
     x = v * t  # t = 0 corresponds to origin
     # mu_n (neutron) / h-bar scaled so that c*S x B (in nT) is in h-bar/second
     c = 2 * -9.162e-2
-    return np.cross(c*S, B_two_wires([x, 0], d, I1, I2))
+    return np.cross(c*S, B([x, 0], t))
 
 
 # r = np.array([1, 4])
@@ -71,7 +70,8 @@ I1 = 10
 I2 = -10
 
 
-def f(t, S): return func(v, d, I1, I2, t, S)
+def f_two_wires(t, S): return rhs(
+    t, S, lambda r, t: B_two_wires(r, d, I1, I2), v)
 
 
 def naive(f, t_bounds, y0, num_pts):
@@ -90,12 +90,12 @@ plt.plot(xs, By)
 # plt.show()
 
 rtol, atol = (1e-8, 1e-8)
-sol = solve_ivp(f, [-100, 100], [0, 1/2, 0],
+sol = solve_ivp(f_two_wires, [-100, 100], [0, 1/2, 0],
                 method="LSODA", rtol=rtol, atol=atol)
 Sf = [sol.y[i][-1] for i in range(3)]
 
 print(f"Number of f evals: {sol.nfev}")
 print(f"Number of time points: {len(sol.t)}")
-print(Sf)
+print(f"Final S: {Sf}")
 
-# print(naive(f, [-100, 100], [0, 1/2, 0], 100000))
+# print(naive(f_two_wires, [-100, 100], [0, 1/2, 0], 100000))
