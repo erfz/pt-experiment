@@ -106,7 +106,7 @@ def run_two_wires(v, d, I1, I2):
     print(f"Number of f evals: {sol.nfev}")
     print(f"Number of time points: {len(sol.t)}")
     print(f"Final S: {Sf}")
+    # print(f"Naive final S: {naive(f_two_wires, [-100, 100], [0, 1/2, 0], 100000)}")
 
 
-# print(naive(f_two_wires, [-100, 100], [0, 1/2, 0], 100000))
 run_two_wires(1000, 10, 10, -10)
