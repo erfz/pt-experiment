@@ -57,6 +57,16 @@ def rhs(t, S, B, v):
     return np.cross(c*S, B([x, 0], t))
 
 
+def naive(f, t_bounds, y0, num_pts):
+    """Converges slowly"""
+    t0, tf = t_bounds
+    y = np.array(y0)
+    range, step = np.linspace(t0, tf, num_pts, retstep=True)
+    for t in range:
+        y += step * f(t, y)
+    return y
+
+
 # r = np.array([1, 4])
 # o = np.array([1, 2])
 
@@ -72,16 +82,6 @@ I2 = -10
 
 def f_two_wires(t, S): return rhs(
     t, S, lambda r, t: B_two_wires(r, d, I1, I2), v)
-
-
-def naive(f, t_bounds, y0, num_pts):
-    """Converges slowly"""
-    t0, tf = t_bounds
-    y = np.array(y0)
-    range, step = np.linspace(t0, tf, num_pts, retstep=True)
-    for t in range:
-        y += step * f(t, y)
-    return y
 
 
 xs = np.linspace(-100, 100, 1000)
