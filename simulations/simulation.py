@@ -89,8 +89,9 @@ def f_two_wires(t, S): return rhs(
 
 
 Hx = 10
-# H_dot = -41.5 for ~50% expected realignment
-# H_dot = -100 for ~75% expected realignment
+# H_dot = -41.5 for ~50.0% expected realignment
+# H_dot = -100 for ~75.0% expected realignment
+# H_dot = -200 for ~86.6% expected realignment
 H_dot = -100
 
 
