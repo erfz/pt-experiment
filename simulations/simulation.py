@@ -71,47 +71,42 @@ def naive(f, t_bounds, y0, num_pts):
     return y
 
 
-# r = np.array([1, 4])
-# o = np.array([1, 2])
+def run_vladimirskii(Hx, H_dot):
+    """
+    Velocity independent.
+    [Hx, H_dot] must be in nanotesla.
+    With Hx = 10:
+        H_dot = -41.5 for ~50.0% expected realignment
+        H_dot = -100 for ~75.0% expected realignment
+        H_dot = -200 for ~86.6% expected realignment
+    """
+    def f_vladimirskii(t, S): return rhs(
+        t, S, lambda r, t: B_vladimirskii(t, Hx, H_dot), 0)
 
-# print(B_wire(r, o, 5))
-# print(B_tot(r, [(o, 5)]))
-# print(B_two_wires([0, 0], 10, 5, -5))
+    rtol, atol = (1e-8, 1e-8)
+    sol = solve_ivp(f_vladimirskii, [-100, 100], [0, 0, 1/2],
+                    method="LSODA", rtol=rtol, atol=atol)
+    Sf = [sol.y[i][-1] for i in range(3)]
 
-v = 1000
-d = 10
-I1 = 10
-I2 = -10
-
-
-def f_two_wires(t, S): return rhs(
-    t, S, lambda r, t: B_two_wires(r, d, I1, I2), v)
-
-
-Hx = 10
-# H_dot = -41.5 for ~50.0% expected realignment
-# H_dot = -100 for ~75.0% expected realignment
-# H_dot = -200 for ~86.6% expected realignment
-H_dot = -100
-
-
-def f_vladimirskii(t, S): return rhs(
-    t, S, lambda r, t: B_vladimirskii(t, Hx, H_dot), v)
+    print(f"Number of f evals: {sol.nfev}")
+    print(f"Number of time points: {len(sol.t)}")
+    print(f"Final S: {Sf}")
+    print(f"Corresponding realignment probability: {100 * (Sf[2] + 1/2)}%")
 
 
-xs = np.linspace(-100, 100, 1000)
-By = [B_two_wires([x, 0], d, I1, I2)[0] for x in xs]
-plt.plot(xs, By)
-# plt.show()
+def run_two_wires(v, d, I1, I2):
+    def f_two_wires(t, S): return rhs(
+        t, S, lambda r, t: B_two_wires(r, d, I1, I2), v)
 
-rtol, atol = (1e-8, 1e-8)
-sol = solve_ivp(f_vladimirskii, [-100, 100], [0, 0, 1/2],
-                method="LSODA", rtol=rtol, atol=atol)
-Sf = [sol.y[i][-1] for i in range(3)]
+    rtol, atol = (1e-8, 1e-8)
+    sol = solve_ivp(f_two_wires, [-100, 100], [0, 1/2, 0],
+                    method="LSODA", rtol=rtol, atol=atol)
+    Sf = [sol.y[i][-1] for i in range(3)]
 
-print(f"Number of f evals: {sol.nfev}")
-print(f"Number of time points: {len(sol.t)}")
-print(f"Final S: {Sf}")
-print(f"Corresponding realignment probability: {100 * (Sf[2] + 1/2)}%")
+    print(f"Number of f evals: {sol.nfev}")
+    print(f"Number of time points: {len(sol.t)}")
+    print(f"Final S: {Sf}")
+
 
 # print(naive(f_two_wires, [-100, 100], [0, 1/2, 0], 100000))
+run_two_wires(1000, 10, 10, -10)
