@@ -45,6 +45,10 @@ def B_two_wires(r, d, I1, I2):
     return B_tot(r, wires)
 
 
+def B_vladimirskii(t, Hx, H_dot):
+    return [Hx, 0, t * H_dot]
+
+
 def rhs(t, S, B, v):
     """
     [t] is time
@@ -84,18 +88,29 @@ def f_two_wires(t, S): return rhs(
     t, S, lambda r, t: B_two_wires(r, d, I1, I2), v)
 
 
+Hx = 10
+# H_dot = -41.5 for ~50% expected realignment
+# H_dot = -100 for ~75% expected realignment
+H_dot = -100
+
+
+def f_vladimirskii(t, S): return rhs(
+    t, S, lambda r, t: B_vladimirskii(t, Hx, H_dot), v)
+
+
 xs = np.linspace(-100, 100, 1000)
 By = [B_two_wires([x, 0], d, I1, I2)[0] for x in xs]
 plt.plot(xs, By)
 # plt.show()
 
 rtol, atol = (1e-8, 1e-8)
-sol = solve_ivp(f_two_wires, [-100, 100], [0, 1/2, 0],
+sol = solve_ivp(f_vladimirskii, [-100, 100], [0, 0, 1/2],
                 method="LSODA", rtol=rtol, atol=atol)
 Sf = [sol.y[i][-1] for i in range(3)]
 
 print(f"Number of f evals: {sol.nfev}")
 print(f"Number of time points: {len(sol.t)}")
 print(f"Final S: {Sf}")
+print(f"Corresponding realignment probability: {100 * (Sf[2] + 1/2)}%")
 
 # print(naive(f_two_wires, [-100, 100], [0, 1/2, 0], 100000))
