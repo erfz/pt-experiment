@@ -116,7 +116,9 @@ def run_two_wires(v, d, I1, I2, y, output=False):
     return Sf
 
 
-# run_two_wires(1000, 10, 10, -10, 0)
+# run_two_wires(1000, 10, 10, -10, 0, True)
+# run_vladimirskii(10, -41.5, True)
+
 N = 100
 d = 10
 rng = np.random.default_rng()
