@@ -5,12 +5,13 @@ from scipy.integrate import solve_ivp
 
 def B_wire(r, r0, I):
     """
-    [r] is field observation point (2D vector)
+    [r] is field observation point (3D vector)
     [r0] is position of infinite wire (2D vector)
     [I] is current (positive means in +z-direction)
     Gives result in nanotesla
     """
-    dist_vec = r - r0
+    # ignore z-component of r, since wire extends infinitely in z
+    dist_vec = r[:-1] - r0
     z_hat = np.array([0, 0, 1])
     direction = np.cross(z_hat, dist_vec)
     B_hat = direction / np.linalg.norm(direction)
@@ -21,7 +22,7 @@ def B_wire(r, r0, I):
 
 def B_tot(r, wires):
     """
-    [r] is field observation point (2D vector)
+    [r] is field observation point (3D vector)
     [wires] is array of (r0, I) pairs, one per infinite wire
     Gives result in nanotesla
     """
@@ -35,7 +36,7 @@ def B_two_wires(r, d, I1, I2):
     """
     Convention: y = 0 is the midline between the two wires
     and (x, y) = (0, 0) is the midpoint between the two wires.
-    [r] is field observation point (2D vector)
+    [r] is field observation point (3D vector)
     [d] is the distance between wires
     [I1], [I2] is current of top and bottom wire respectively
     Gives result in nanotesla
@@ -53,12 +54,12 @@ def rhs(t, S, B, v):
     """
     [t] is time
     [S] is spin vector
-    [B] is B-field function B(r, t) (must return results in nanotesla)
+    [B] is B-field function B(r {3D vec}, t) (must return results in nanotesla)
     """
     x = v * t  # t = 0 corresponds to origin
     # mu_n (neutron) / h-bar scaled so that c*S x B (in nT) is in h-bar/second
     c = 2 * -9.162e-2
-    return np.cross(c*S, B([x, 0], t))
+    return np.cross(c*S, B([x, 0, 0], t))
 
 
 def naive(f, t_bounds, y0, num_pts):
