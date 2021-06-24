@@ -124,4 +124,5 @@ rand_floats = rng.random(N) * d/2
 rand_bools = rng.choice([-1, 1], N)
 rand_ys = [x * b for x, b in zip(rand_floats, rand_bools)]
 rand_Sf = [run_two_wires(1000, 10, 10, -10, y) for y in rand_ys]
-print(np.sum(rand_Sf, axis=0)/N)
+# average over all final spin vectors
+print(np.average(rand_Sf, axis=0))
