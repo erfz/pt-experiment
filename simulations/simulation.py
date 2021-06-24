@@ -50,7 +50,7 @@ def B_vladimirskii(t, Hx, H_dot):
     return [Hx, 0, t * H_dot]
 
 
-def rhs(t, S, B, v):
+def rhs(t, S, B, v, y=0):
     """
     [t] is time
     [S] is spin vector
@@ -59,7 +59,7 @@ def rhs(t, S, B, v):
     x = v * t  # t = 0 corresponds to origin
     # mu_n (neutron) / h-bar scaled so that c*S x B (in nT) is in h-bar/second
     c = 2 * -9.162e-2
-    return np.cross(c*S, B([x, 0, 0], t))
+    return np.cross(c*S, B([x, y, 0], t))
 
 
 def naive(f, t_bounds, y0, num_pts):
@@ -72,7 +72,7 @@ def naive(f, t_bounds, y0, num_pts):
     return y
 
 
-def run_vladimirskii(Hx, H_dot):
+def run_vladimirskii(Hx, H_dot, output=False):
     """
     Velocity independent.
     [Hx, H_dot] must be in nanotesla.
@@ -89,25 +89,39 @@ def run_vladimirskii(Hx, H_dot):
                     method="LSODA", rtol=rtol, atol=atol)
     Sf = [sol.y[i][-1] for i in range(3)]
 
-    print(f"Number of f evals: {sol.nfev}")
-    print(f"Number of time points: {len(sol.t)}")
-    print(f"Final S: {Sf}")
-    print(f"Corresponding realignment probability: {100 * (Sf[2] + 1/2)}%")
+    if output:
+        print(f"Number of f evals: {sol.nfev}")
+        print(f"Number of time points: {len(sol.t)}")
+        print(f"Final S: {Sf}")
+        print(f"Corresponding realignment probability: {100 * (Sf[2] + 1/2)}%")
+
+    return Sf
 
 
-def run_two_wires(v, d, I1, I2):
+def run_two_wires(v, d, I1, I2, y, output=False):
     def f_two_wires(t, S): return rhs(
-        t, S, lambda r, t: B_two_wires(r, d, I1, I2), v)
+        t, S, lambda r, t: B_two_wires(r, d, I1, I2), v, y)
 
     rtol, atol = (1e-8, 1e-8)
     sol = solve_ivp(f_two_wires, [-100, 100], [0, 1/2, 0],
                     method="LSODA", rtol=rtol, atol=atol)
     Sf = [sol.y[i][-1] for i in range(3)]
 
-    print(f"Number of f evals: {sol.nfev}")
-    print(f"Number of time points: {len(sol.t)}")
-    print(f"Final S: {Sf}")
+    if output:
+        print(f"Number of f evals: {sol.nfev}")
+        print(f"Number of time points: {len(sol.t)}")
+        print(f"Final S: {Sf}")
+
     # print(f"Naive final S: {naive(f_two_wires, [-100, 100], [0, 1/2, 0], 100000)}")
+    return Sf
 
 
-run_two_wires(1000, 10, 10, -10)
+# run_two_wires(1000, 10, 10, -10, 0)
+N = 100
+d = 10
+rng = np.random.default_rng()
+rand_floats = rng.random(N) * d/2
+rand_bools = rng.choice([-1, 1], N)
+rand_ys = [x * b for x, b in zip(rand_floats, rand_bools)]
+rand_Sf = [run_two_wires(1000, 10, 10, -10, y) for y in rand_ys]
+print(np.sum(rand_Sf, axis=0)/N)
