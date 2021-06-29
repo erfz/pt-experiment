@@ -72,7 +72,7 @@ def naive(f, t_bounds, y0, num_pts):
     return y
 
 
-def run_vladimirskii(Hx, H_dot):
+def run_vladimirskii(Hx, H_dot, t_bounds=[-100, 100]):
     """
     Velocity independent.
     [Hx, H_dot] must be in nanotesla.
@@ -85,7 +85,7 @@ def run_vladimirskii(Hx, H_dot):
         t, S, lambda r, t: B_vladimirskii(t, Hx, H_dot), 0)
 
     rtol, atol = (1e-8, 1e-8)
-    sol = solve_ivp(f_vladimirskii, [-100, 100], [0, 0, 1/2],
+    sol = solve_ivp(f_vladimirskii, t_bounds, [0, 0, 1/2],
                     method="LSODA", rtol=rtol, atol=atol)
     Sf = [sol.y[i][-1] for i in range(3)]
 
@@ -95,38 +95,43 @@ def run_vladimirskii(Hx, H_dot):
     return Sf
 
 
-def run_two_wires(v, d, I1, I2, y):
+def run_two_wires(v, d, I1, I2, y, t_bounds, S0):
     def f_two_wires(t, S): return rhs(
         t, S, lambda r, t: B_two_wires(r, d, I1, I2), v, y)
 
     rtol, atol = (1e-8, 1e-8)
-    sol = solve_ivp(f_two_wires, [-100, 100], [0, 1/2, 0],
+    sol = solve_ivp(f_two_wires, t_bounds, S0,
                     method="LSODA", rtol=rtol, atol=atol)
     Sf = [sol.y[i][-1] for i in range(3)]
 
     # print(f"Number of f evals: {sol.nfev}")
     # print(f"Number of time points: {len(sol.t)}")
-    # print(f"Naive final S: {naive(f_two_wires, [-100, 100], [0, 1/2, 0], 100000)}")
 
     return Sf
 
 
-def run_two_wires_rand_line(v, d, I1, I2, N):
+def run_two_wires_rand_line(v, d, I1, I2, N, t_bounds):
+    def S0(y):
+        t0, tf = t_bounds
+        B0 = B_two_wires([v * t0, y, 0], d, I1, I2)
+        return B0 / np.linalg.norm(B0) / 2
+
     rng = np.random.default_rng()
     rand_floats = rng.random(N) * d/2
     rand_bools = rng.choice([-1, 1], N)
     rand_ys = [x * b for x, b in zip(rand_floats, rand_bools)]
-    rand_Sf = [run_two_wires(v, d, I1, I2, y) for y in rand_ys]
+    rand_Sf = [run_two_wires(v, d, I1, I2, y, t_bounds, S0(y))
+               for y in rand_ys]
     # average over all final spin vectors
     return np.average(rand_Sf, axis=0)
 
 
-Sf_two_wires = run_two_wires(1000, 10, 10, -10, 0)
+Sf_two_wires = run_two_wires(1000, 10, 10, -10, 0, [-100, 100], [0, 1/2, 0])
 print(f"Final S (two wires): {Sf_two_wires}")
 
 Sf_vlad = run_vladimirskii(10, -41.5)
 print(f"Final S (Vladimirskii): {Sf_vlad}")
 print(f"-> Corresponding realignment probability: {100 * (Sf_vlad[2] + 1/2)}%")
 
-Sf_rand_line = run_two_wires_rand_line(1000, 10, 10, -10, 100)
+Sf_rand_line = run_two_wires_rand_line(1000, 10, 10, -10, 100, [-100, 100])
 print(f"Final S (rand line): {Sf_rand_line}")
