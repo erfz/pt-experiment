@@ -72,7 +72,7 @@ def naive(f, t_bounds, y0, num_pts):
     return y
 
 
-def run_vladimirskii(Hx, H_dot, output=False):
+def run_vladimirskii(Hx, H_dot):
     """
     Velocity independent.
     [Hx, H_dot] must be in nanotesla.
@@ -89,16 +89,13 @@ def run_vladimirskii(Hx, H_dot, output=False):
                     method="LSODA", rtol=rtol, atol=atol)
     Sf = [sol.y[i][-1] for i in range(3)]
 
-    if output:
-        print(f"Number of f evals: {sol.nfev}")
-        print(f"Number of time points: {len(sol.t)}")
-        print(f"Final S: {Sf}")
-        print(f"Corresponding realignment probability: {100 * (Sf[2] + 1/2)}%")
+    # print(f"Number of f evals: {sol.nfev}")
+    # print(f"Number of time points: {len(sol.t)}")
 
     return Sf
 
 
-def run_two_wires(v, d, I1, I2, y, output=False):
+def run_two_wires(v, d, I1, I2, y):
     def f_two_wires(t, S): return rhs(
         t, S, lambda r, t: B_two_wires(r, d, I1, I2), v, y)
 
@@ -107,24 +104,29 @@ def run_two_wires(v, d, I1, I2, y, output=False):
                     method="LSODA", rtol=rtol, atol=atol)
     Sf = [sol.y[i][-1] for i in range(3)]
 
-    if output:
-        print(f"Number of f evals: {sol.nfev}")
-        print(f"Number of time points: {len(sol.t)}")
-        print(f"Final S: {Sf}")
-
+    # print(f"Number of f evals: {sol.nfev}")
+    # print(f"Number of time points: {len(sol.t)}")
     # print(f"Naive final S: {naive(f_two_wires, [-100, 100], [0, 1/2, 0], 100000)}")
+
     return Sf
 
 
-# run_two_wires(1000, 10, 10, -10, 0, True)
-# run_vladimirskii(10, -41.5, True)
+def run_two_wires_rand_line(v, d, I1, I2, N):
+    rng = np.random.default_rng()
+    rand_floats = rng.random(N) * d/2
+    rand_bools = rng.choice([-1, 1], N)
+    rand_ys = [x * b for x, b in zip(rand_floats, rand_bools)]
+    rand_Sf = [run_two_wires(v, d, I1, I2, y) for y in rand_ys]
+    # average over all final spin vectors
+    return np.average(rand_Sf, axis=0)
 
-N = 100
-d = 10
-rng = np.random.default_rng()
-rand_floats = rng.random(N) * d/2
-rand_bools = rng.choice([-1, 1], N)
-rand_ys = [x * b for x, b in zip(rand_floats, rand_bools)]
-rand_Sf = [run_two_wires(1000, 10, 10, -10, y) for y in rand_ys]
-# average over all final spin vectors
-print(np.average(rand_Sf, axis=0))
+
+Sf_two_wires = run_two_wires(1000, 10, 10, -10, 0)
+print(f"Final S (two wires): {Sf_two_wires}")
+
+Sf_vlad = run_vladimirskii(10, -41.5)
+print(f"Final S (Vladimirskii): {Sf_vlad}")
+print(f"-> Corresponding realignment probability: {100 * (Sf_vlad[2] + 1/2)}%")
+
+Sf_rand_line = run_two_wires_rand_line(1000, 10, 10, -10, 100)
+print(f"Final S (rand line): {Sf_rand_line}")
