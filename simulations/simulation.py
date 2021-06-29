@@ -126,12 +126,12 @@ def run_two_wires_rand_line(v, d, I1, I2, N, t_bounds):
     return np.average(rand_Sf, axis=0)
 
 
-Sf_two_wires = run_two_wires(1000, 10, 10, -10, 0, [-100, 100], [0, 1/2, 0])
-print(f"Final S (two wires): {Sf_two_wires}")
+# Sf_two_wires = run_two_wires(1000, 10, 10, -10, 0, [-100, 100], [0, 1/2, 0])
+# print(f"Final S (two wires): {Sf_two_wires}")
 
-Sf_vlad = run_vladimirskii(10, -41.5)
-print(f"Final S (Vladimirskii): {Sf_vlad}")
-print(f"-> Corresponding realignment probability: {100 * (Sf_vlad[2] + 1/2)}%")
+# Sf_vlad = run_vladimirskii(10, -41.5)
+# print(f"Final S (Vladimirskii): {Sf_vlad}")
+# print(f"-> Corresponding realignment probability: {100 * (Sf_vlad[2] + 1/2)}%")
 
-Sf_rand_line = run_two_wires_rand_line(1000, 10, 10, -10, 100, [-100, 100])
-print(f"Final S (rand line): {Sf_rand_line}")
+# Sf_rand_line = run_two_wires_rand_line(1000, 10, 10, -10, 100, [-100, 100])
+# print(f"Final S (rand line): {Sf_rand_line}")
