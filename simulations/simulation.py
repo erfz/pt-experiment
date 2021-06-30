@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
+from random import random
+import math
 
 
 def B_wire(r, r0, I):
@@ -135,3 +137,30 @@ def run_two_wires_rand_line(v, d, I1, I2, N, t_bounds):
 
 # Sf_rand_line = run_two_wires_rand_line(1000, 10, 10, -10, 100, [-100, 100])
 # print(f"Final S (rand line): {Sf_rand_line}")
+
+def rand_cluster(n, c, r):
+    """
+    returns n random points in disk of radius r centered at c
+    Source: https://stackoverflow.com/a/44356472
+    """
+    x, y = c
+    points = []
+    for i in range(n):
+        theta = 2*math.pi*random()
+        s = r*random()
+        points.append((x+s*math.cos(theta), y+s*math.sin(theta)))
+    return points
+
+
+def rand_square(n, c, s):
+    x0, y0 = c
+    rng = np.random.default_rng()
+    xs = rng.random(n) * s + x0
+    ys = rng.random(n) * s + y0
+    return xs, ys
+
+
+clst = rand_cluster(10000, (0, 0), 1)
+x, y = zip(*clst)
+plt.scatter(x, y)
+plt.show()
