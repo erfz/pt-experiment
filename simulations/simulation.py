@@ -157,7 +157,7 @@ def rand_square(n, c, s):
     rng = np.random.default_rng()
     xs = rng.random(n) * s + x0
     ys = rng.random(n) * s + y0
-    return xs, ys
+    return list(zip(xs, ys))
 
 
 clst = rand_cluster(10000, (0, 0), 1)
