@@ -52,7 +52,7 @@ def B_vladimirskii(t, Hx, H_dot):
     return [Hx, 0, t * H_dot]
 
 
-def r(vx, t, y, z):
+def r_particle(vx, t, y, z):
     """
     Position vector of particle throughout simulation,
     assuming only movement in x-direction with velocity [vx].
@@ -69,7 +69,7 @@ def rhs(t, S, B, vx, y=0):
     """
     # mu_n (neutron) / h-bar scaled so that c*S x B (in nT) is in h-bar/second
     c = 2 * -9.162e-2
-    return np.cross(c*S, B(r(vx, t, y, 0), t))
+    return np.cross(c*S, B(r_particle(vx, t, y, 0), t))
 
 
 def naive(f, t_bounds, y0, num_pts):
@@ -123,7 +123,7 @@ def run_two_wires(vx, d, I1, I2, y, t_bounds, S0):
 def run_two_wires_rand_line(vx, d, I1, I2, N, t_bounds):
     def S0(y):
         t0, tf = t_bounds
-        B0 = B_two_wires(r(vx, t0, y, 0), d, I1, I2)
+        B0 = B_two_wires(r_particle(vx, t0, y, 0), d, I1, I2)
         return B0 / np.linalg.norm(B0) / 2
 
     rng = np.random.default_rng()
