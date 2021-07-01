@@ -120,7 +120,7 @@ def run_two_wires(vx, d, I1, I2, yz, t_bounds, S0):
     return Sf
 
 
-def run_two_wires_rand_line(vx, d, I1, I2, N, t_bounds):
+def run_two_wires_line(vx, d, I1, I2, N, t_bounds):
     def S0(yz):
         t0, tf = t_bounds
         B0 = B_two_wires(r_particle(vx, t0, yz), d, I1, I2)
@@ -144,7 +144,7 @@ def run_two_wires_rand_line(vx, d, I1, I2, N, t_bounds):
 # print(f"Final S (Vladimirskii): {Sf_vlad}")
 # print(f"-> Corresponding realignment probability: {100 * (Sf_vlad[2] + 1/2)}%")
 
-# Sf_rand_line = run_two_wires_rand_line(1000, 10, 10, -10, 100, [-100, 100])
+# Sf_rand_line = run_two_wires_line(1000, 10, 10, -10, 100, [-100, 100])
 # print(f"Final S (rand line): {Sf_rand_line}")
 
 
@@ -177,18 +177,25 @@ def rand_square(n, c, s):
 # plt.show()
 
 
-def run_two_wires_rand_square(vx, d, I1, I2, N, t_bounds):
+def run_two_wires_shape_2D(vx, d, I1, I2, N, t_bounds, shape):
     def S0(yz):
         t0, tf = t_bounds
         B0 = B_two_wires(r_particle(vx, t0, yz), d, I1, I2)
         return B0 / np.linalg.norm(B0) / 2
 
-    ys, zs = zip(*rand_square(N, (-d/2, 0), d))
+    if shape == "square":
+        ys, zs = zip(*rand_square(N, (-d/2, 0), d))
+    elif shape == "circle":
+        ys, zs = zip(*rand_cluster(N, (0, 0), d/2))
+    else:
+        raise ValueError(f"'{shape}' is not a valid [shape] argument")
+
     rand_Sf = [run_two_wires(vx, d, I1, I2, (y, z), t_bounds, S0((y, z)))
                for y, z in zip(ys, zs)]
     # average over all final spin vectors
     return np.average(rand_Sf, axis=0)
 
 
-# Sf_square = run_two_wires_rand_square(1000, 10, 10, -10, 100, [-100, 100])
-# print(Sf_square)
+# shape = "square"
+# Sf_shape = run_two_wires_shape_2D(1000, 10, 10, -10, 100, [-100, 100], shape)
+# print(f"Final S ({shape}): {Sf_shape}")
