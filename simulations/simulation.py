@@ -169,8 +169,25 @@ def rand_square(n, c, s):
     return list(zip(xs, ys))
 
 
-clst = rand_cluster(10000, (0, 0), 1)
-x, y = zip(*clst)
-ax = plt.figure().add_subplot(projection='3d')
-ax.scatter(x, y, 1)
-plt.show()
+# clst = rand_cluster(10000, (0, 0), 1)
+# x, y = zip(*clst)
+# ax = plt.figure().add_subplot(projection='3d')
+# ax.scatter(x, y, 1)
+# plt.show()
+
+
+def run_two_wires_rand_square(vx, d, I1, I2, N, t_bounds):
+    def S0(y):
+        t0, tf = t_bounds
+        B0 = B_two_wires(r_particle(vx, t0, y, 0), d, I1, I2)
+        return B0 / np.linalg.norm(B0) / 2
+
+    ys, zs = zip(*rand_square(N, (-d/2, 0), d))
+    rand_Sf = [run_two_wires(vx, d, I1, I2, y, t_bounds, S0(y))
+               for y in ys]
+    # average over all final spin vectors
+    return np.average(rand_Sf, axis=0)
+
+
+# Sf_square = run_two_wires_rand_square(1000, 10, 10, -10, 100, [-100, 100])
+# print(Sf_square)
