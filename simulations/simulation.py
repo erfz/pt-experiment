@@ -52,16 +52,16 @@ def B_vladimirskii(t, Hx, H_dot):
     return [Hx, 0, t * H_dot]
 
 
-def r_particle(vx, t, y, z):
+def r_particle(vx, t, yz):
     """
     Position vector of particle throughout simulation,
     assuming only movement in x-direction with velocity [vx].
     Convention: t=0 corresponds to x=0
     """
-    return [vx * t, y, z]
+    return [vx * t, *yz]
 
 
-def rhs(t, S, B, vx, y=0):
+def rhs(t, S, B, vx, yz=(0, 0)):
     """
     [t] is time
     [S] is spin vector
@@ -69,7 +69,7 @@ def rhs(t, S, B, vx, y=0):
     """
     # mu_n (neutron) / h-bar scaled so that c*S x B (in nT) is in h-bar/second
     c = 2 * -9.162e-2
-    return np.cross(c*S, B(r_particle(vx, t, y, 0), t))
+    return np.cross(c*S, B(r_particle(vx, t, yz), t))
 
 
 def naive(f, t_bounds, y0, num_pts):
@@ -105,9 +105,9 @@ def run_vladimirskii(Hx, H_dot, t_bounds=[-100, 100]):
     return Sf
 
 
-def run_two_wires(vx, d, I1, I2, y, t_bounds, S0):
+def run_two_wires(vx, d, I1, I2, yz, t_bounds, S0):
     def f_two_wires(t, S): return rhs(
-        t, S, lambda r, t: B_two_wires(r, d, I1, I2), vx, y)
+        t, S, lambda r, t: B_two_wires(r, d, I1, I2), vx, yz)
 
     rtol, atol = (1e-8, 1e-8)
     sol = solve_ivp(f_two_wires, t_bounds, S0,
@@ -121,22 +121,23 @@ def run_two_wires(vx, d, I1, I2, y, t_bounds, S0):
 
 
 def run_two_wires_rand_line(vx, d, I1, I2, N, t_bounds):
-    def S0(y):
+    def S0(yz):
         t0, tf = t_bounds
-        B0 = B_two_wires(r_particle(vx, t0, y, 0), d, I1, I2)
+        B0 = B_two_wires(r_particle(vx, t0, yz), d, I1, I2)
         return B0 / np.linalg.norm(B0) / 2
 
     rng = np.random.default_rng()
     rand_floats = rng.random(N) * d/2
     rand_bools = rng.choice([-1, 1], N)
     rand_ys = [x * b for x, b in zip(rand_floats, rand_bools)]
-    rand_Sf = [run_two_wires(vx, d, I1, I2, y, t_bounds, S0(y))
+    rand_Sf = [run_two_wires(vx, d, I1, I2, (y, 0), t_bounds, S0((y, 0)))
                for y in rand_ys]
     # average over all final spin vectors
     return np.average(rand_Sf, axis=0)
 
 
-# Sf_two_wires = run_two_wires(1000, 10, 10, -10, 0, [-100, 100], [0, 1/2, 0])
+# Sf_two_wires = run_two_wires(
+#     1000, 10, 10, -10, (0, 0), [-100, 100], [0, 1/2, 0])
 # print(f"Final S (two wires): {Sf_two_wires}")
 
 # Sf_vlad = run_vladimirskii(10, -41.5)
@@ -177,14 +178,14 @@ def rand_square(n, c, s):
 
 
 def run_two_wires_rand_square(vx, d, I1, I2, N, t_bounds):
-    def S0(y):
+    def S0(yz):
         t0, tf = t_bounds
-        B0 = B_two_wires(r_particle(vx, t0, y, 0), d, I1, I2)
+        B0 = B_two_wires(r_particle(vx, t0, yz), d, I1, I2)
         return B0 / np.linalg.norm(B0) / 2
 
     ys, zs = zip(*rand_square(N, (-d/2, 0), d))
-    rand_Sf = [run_two_wires(vx, d, I1, I2, y, t_bounds, S0(y))
-               for y in ys]
+    rand_Sf = [run_two_wires(vx, d, I1, I2, (y, z), t_bounds, S0((y, z)))
+               for y, z in zip(ys, zs)]
     # average over all final spin vectors
     return np.average(rand_Sf, axis=0)
 
