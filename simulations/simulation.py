@@ -29,26 +29,27 @@ def B_wire(r, r0, I, R):
 def B_tot(r, wires):
     """
     [r] is field observation point (3D vector)
-    [wires] is array of (r0, I) pairs, one per infinite wire
+    [wires] is array of (r0, I, R) tuples, one per infinite wire
     Gives result in nanotesla
     """
     result = np.zeros(3)
-    for r0, I, R in wires:
-        result += B_wire(r, r0, I, R)
+    for wire in wires:
+        result += B_wire(r, *wire)
     return result
 
 
-def B_two_wires(r, d, I1, I2, R1=0, R2=0):
+def B_two_wires(r, d, w1, w2):
     """
     Convention: y = 0 is the midline between the two wires
     and (x, y) = (0, 0) is the midpoint between the two wires.
     [r] is field observation point (3D vector)
     [d] is the distance between wires
-    [I1], [I2] is current of top and bottom wire respectively
+    [w1] is the (current, radius) pair of wire 1
+    [w2] is the (current, radius) pair of wire 2
     Gives result in nanotesla
     """
     top_wire_pos = np.array([0, d/2])
-    wires = [(top_wire_pos, I1, R1), (-top_wire_pos, I2, R2)]
+    wires = [(top_wire_pos, *w1), (-top_wire_pos, *w2)]
     return B_tot(r, wires)
 
 
@@ -109,9 +110,9 @@ def run_vladimirskii(Hx, H_dot, t_bounds=[-100, 100]):
     return Sf
 
 
-def run_two_wires(vx, d, I1, I2, yz, t_bounds, S0):
+def run_two_wires(vx, d, w1, w2, yz, t_bounds, S0):
     def f_two_wires(t, S): return rhs(
-        t, S, lambda r, t: B_two_wires(r, d, I1, I2), vx, yz)
+        t, S, lambda r, t: B_two_wires(r, d, w1, w2), vx, yz)
 
     rtol, atol = (1e-8, 1e-8)
     sol = solve_ivp(f_two_wires, t_bounds, S0,
@@ -124,31 +125,32 @@ def run_two_wires(vx, d, I1, I2, yz, t_bounds, S0):
     return Sf
 
 
-def run_two_wires_line(vx, d, I1, I2, N, t_bounds):
+def run_two_wires_line(vx, d, w1, w2, N, t_bounds):
     def S0(yz):
         t0, tf = t_bounds
-        B0 = B_two_wires(r_particle(vx, t0, yz), d, I1, I2)
+        B0 = B_two_wires(r_particle(vx, t0, yz), d, w1, w2)
         return B0 / np.linalg.norm(B0) / 2
 
     rng = np.random.default_rng()
     rand_floats = rng.random(N) * d/2
     rand_bools = rng.choice([-1, 1], N)
     rand_ys = [x * b for x, b in zip(rand_floats, rand_bools)]
-    rand_Sf = [run_two_wires(vx, d, I1, I2, (y, 0), t_bounds, S0((y, 0)))
+    rand_Sf = [run_two_wires(vx, d, w1, w2, (y, 0), t_bounds, S0((y, 0)))
                for y in rand_ys]
     # average over all final spin vectors
     return np.average(rand_Sf, axis=0)
 
 
 # Sf_two_wires = run_two_wires(
-#     1000, 10, 10, -10, (0, 0), [-100, 100], [0, 1/2, 0])
+#     1000, 10, (10, 0), (-10, 0), (0, 0), [-100, 100], [0, 1/2, 0])
 # print(f"Final S (two wires): {Sf_two_wires}")
 
 # Sf_vlad = run_vladimirskii(10, -41.5)
 # print(f"Final S (Vladimirskii): {Sf_vlad}")
 # print(f"-> Corresponding realignment probability: {100 * (Sf_vlad[2] + 1/2)}%")
 
-# Sf_rand_line = run_two_wires_line(1000, 10, 10, -10, 100, [-100, 100])
+# Sf_rand_line = run_two_wires_line(
+#     1000, 10, (10, 0), (-10, 0), 100, [-100, 100])
 # print(f"Final S (rand line): {Sf_rand_line}")
 
 
@@ -181,10 +183,10 @@ def rand_square(n, c, s):
 # plt.show()
 
 
-def run_two_wires_shape_2D(vx, d, I1, I2, N, t_bounds, shape):
+def run_two_wires_shape_2D(vx, d, w1, w2, N, t_bounds, shape):
     def S0(yz):
         t0, tf = t_bounds
-        B0 = B_two_wires(r_particle(vx, t0, yz), d, I1, I2)
+        B0 = B_two_wires(r_particle(vx, t0, yz), d, w1, w2)
         return B0 / np.linalg.norm(B0) / 2
 
     if shape == "square":
@@ -194,12 +196,13 @@ def run_two_wires_shape_2D(vx, d, I1, I2, N, t_bounds, shape):
     else:
         raise ValueError(f"'{shape}' is not a valid [shape] argument")
 
-    rand_Sf = [run_two_wires(vx, d, I1, I2, (y, z), t_bounds, S0((y, z)))
+    rand_Sf = [run_two_wires(vx, d, w1, w2, (y, z), t_bounds, S0((y, z)))
                for y, z in zip(ys, zs)]
     # average over all final spin vectors
     return np.average(rand_Sf, axis=0)
 
 
 # shape = "square"
-# Sf_shape = run_two_wires_shape_2D(1000, 10, 10, -10, 100, [-100, 100], shape)
+# Sf_shape = run_two_wires_shape_2D(
+#     1000, 10, (10, 0), (-10, 0), 100, [-100, 100], shape)
 # print(f"Final S ({shape}): {Sf_shape}")
