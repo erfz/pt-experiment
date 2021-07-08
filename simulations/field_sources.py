@@ -16,6 +16,16 @@ class FieldSource(ABC):
         pass
 
 
+class Bounded(FieldSource):
+    @abstractmethod
+    def isinside(self, r):
+        pass
+
+
+class Overriding(Bounded):
+    pass
+
+
 class InfiniteWire(FieldSource):
     def __init__(self, p, I, R):
         self.p = np.array(p)
@@ -40,7 +50,7 @@ class InfiniteWire(FieldSource):
             return mu_over_2pi * I_norm / dist * B_hat
 
 
-class ConstantFieldBox(FieldSource):
+class ConstantFieldBox(Bounded):
     def __init__(self, p, dims, B):
         self.p = np.array(p)
         self.dims = np.array(dims)
@@ -60,3 +70,7 @@ class ConstantFieldBox(FieldSource):
             return self.B
         else:
             return np.zeros(3)
+
+
+class OverridingConstantFieldBox(ConstantFieldBox, Overriding):
+    pass
