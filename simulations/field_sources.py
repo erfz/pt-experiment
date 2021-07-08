@@ -38,3 +38,25 @@ class InfiniteWire(FieldSource):
             return mu_over_2pi * I_norm * dist / (self.R * self.R) * B_hat
         else:
             return mu_over_2pi * I_norm / dist * B_hat
+
+
+class ConstantFieldBox(FieldSource):
+    def __init__(self, p, dims, B):
+        self.p = np.array(p)
+        self.dims = np.array(dims)
+        self.B = B
+
+    def isinside(self, r):
+        for i in range(3):
+            ri = r[i]
+            pi = self.p[i]
+            di = self.dims[i]
+            if not(ri >= pi and ri <= pi + di):
+                return False
+        return True
+
+    def field(self, r):
+        if self.isinside(r):
+            return self.B
+        else:
+            return np.zeros(3)
