@@ -1,6 +1,7 @@
 import math
 from random import random
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 

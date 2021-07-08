@@ -44,7 +44,7 @@ class ConstantFieldBox(FieldSource):
     def __init__(self, p, dims, B):
         self.p = np.array(p)
         self.dims = np.array(dims)
-        self.B = B
+        self.B = np.array(B)
 
     def isinside(self, r):
         for i in range(3):
