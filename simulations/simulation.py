@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 from random import random
 import math
+from field_sources import *
 
 
 def vec_line_to_point(p, a, n):
@@ -116,9 +117,9 @@ def run_vladimirskii(Hx, H_dot, t_bounds=[-100, 100]):
     return Sf
 
 
-def run_two_wires(vx, d, w1, w2, yz, t_bounds, S0):
+def run_wires(vx, yz, wires, t_bounds, S0):
     def f_two_wires(t, S): return rhs(
-        t, S, lambda r, t: B_two_wires(r, d, w1, w2), vx, yz)
+        t, S, lambda r, t: field_tot(r, wires), vx, yz)
 
     rtol, atol = (1e-8, 1e-8)
     sol = solve_ivp(f_two_wires, t_bounds, S0,
@@ -131,24 +132,35 @@ def run_two_wires(vx, d, w1, w2, yz, t_bounds, S0):
     return Sf
 
 
+def generate_two_wires(d, w1, w2):
+    I1, R1 = w1
+    I2, R2 = w2
+    z_hat = np.array([0, 0, 1])
+    y_hat = np.array([0, 1, 0])
+    return [InfiniteWire(d/2 * y_hat, I1 * z_hat, R1),
+            InfiniteWire(-d/2 * y_hat, I2 * z_hat, R2)]
+
+
 def run_two_wires_line(vx, d, w1, w2, N, t_bounds):
+    two_wires = generate_two_wires(d, w1, w2)
+
     def S0(yz):
         t0, tf = t_bounds
-        B0 = B_two_wires(r_particle(vx, t0, yz), d, w1, w2)
+        B0 = field_tot(r_particle(vx, t0, yz), two_wires)
         return B0 / np.linalg.norm(B0) / 2
 
     rng = np.random.default_rng()
     rand_floats = rng.random(N) * d/2
     rand_bools = rng.choice([-1, 1], N)
     rand_ys = [x * b for x, b in zip(rand_floats, rand_bools)]
-    rand_Sf = [run_two_wires(vx, d, w1, w2, (y, 0), t_bounds, S0((y, 0)))
+    rand_Sf = [run_wires(vx, (y, 0), two_wires, t_bounds, S0((y, 0)))
                for y in rand_ys]
     # average over all final spin vectors
     return np.average(rand_Sf, axis=0)
 
 
-# Sf_two_wires = run_two_wires(
-#     1000, 10, (10, 0), (-10, 0), (0, 0), [-100, 100], [0, 1/2, 0])
+# Sf_two_wires = run_wires(1000, (0, 0), generate_two_wires(
+#     10, (10, 0), (-10, 0)), [-100, 100], [0, 1/2, 0])
 # print(f"Final S (two wires): {Sf_two_wires}")
 
 # Sf_vlad = run_vladimirskii(10, -41.5)
@@ -190,9 +202,11 @@ def rand_square(n, c, s):
 
 
 def run_two_wires_shape_2D(vx, d, w1, w2, N, t_bounds, shape):
+    two_wires = generate_two_wires(d, w1, w2)
+
     def S0(yz):
         t0, tf = t_bounds
-        B0 = B_two_wires(r_particle(vx, t0, yz), d, w1, w2)
+        B0 = field_tot(r_particle(vx, t0, yz), two_wires)
         return B0 / np.linalg.norm(B0) / 2
 
     if shape == "square":
@@ -202,7 +216,7 @@ def run_two_wires_shape_2D(vx, d, w1, w2, N, t_bounds, shape):
     else:
         raise ValueError(f"'{shape}' is not a valid [shape] argument")
 
-    rand_Sf = [run_two_wires(vx, d, w1, w2, (y, z), t_bounds, S0((y, z)))
+    rand_Sf = [run_wires(vx, (y, z), two_wires, t_bounds, S0((y, z)))
                for y, z in zip(ys, zs)]
     # average over all final spin vectors
     return np.average(rand_Sf, axis=0)

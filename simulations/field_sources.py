@@ -2,6 +2,13 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 
+def field_tot(r, field_sources):
+    result = np.zeros(3)
+    for source in field_sources:
+        result += source.field(r)
+    return result
+
+
 class FieldSource(ABC):
     @abstractmethod
     def field(self, r):
