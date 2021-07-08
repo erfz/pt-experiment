@@ -103,19 +103,6 @@ def run_two_wires_line(vx, d, w1, w2, N, t_bounds):
     return np.average(rand_Sf, axis=0)
 
 
-# Sf_two_wires = run_particle(1000, (0, 0), generate_two_wires(
-#     10, (10, 0), (-10, 0)), [-100, 100], [0, 1/2, 0])
-# print(f"Final S (two wires): {Sf_two_wires}")
-
-# Sf_vlad = run_vladimirskii(10, -41.5)
-# print(f"Final S (Vladimirskii): {Sf_vlad}")
-# print(f"-> Corresponding realignment probability: {100 * (Sf_vlad[2] + 1/2)}%")
-
-# Sf_rand_line = run_two_wires_line(
-#     1000, 10, (10, 0), (-10, 0), 100, [-100, 100])
-# print(f"Final S (rand line): {Sf_rand_line}")
-
-
 def rand_cluster(n, c, r):
     """
     returns n random points in disk of radius r centered at c
@@ -165,6 +152,18 @@ def run_two_wires_shape_2D(vx, d, w1, w2, N, t_bounds, shape):
     # average over all final spin vectors
     return np.average(rand_Sf, axis=0)
 
+
+# Sf_two_wires = run_particle(1000, (0, 0), generate_two_wires(
+#     10, (10, 0), (-10, 0)), [-100, 100], [0, 1/2, 0])
+# print(f"Final S (two wires): {Sf_two_wires}")
+
+# Sf_vlad = run_vladimirskii(10, -41.5)
+# print(f"Final S (Vladimirskii): {Sf_vlad}")
+# print(f"-> Corresponding realignment probability: {100 * (Sf_vlad[2] + 1/2)}%")
+
+# Sf_rand_line = run_two_wires_line(
+#     1000, 10, (10, 0), (-10, 0), 100, [-100, 100])
+# print(f"Final S (rand line): {Sf_rand_line}")
 
 # shape = "square"
 # Sf_shape = run_two_wires_shape_2D(
