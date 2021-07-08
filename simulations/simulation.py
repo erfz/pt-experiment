@@ -6,60 +6,6 @@ import math
 from field_sources import *
 
 
-def vec_line_to_point(p, a, n):
-    n = np.divide(n, np.linalg.norm(n))
-    x = np.subtract(p, a)
-    return x - n * np.dot(x, n)
-
-
-def B_wire(r, r0, v, I, R):
-    """
-    [r] is field observation point (3D vector)
-    [r0] is any point the infinite wire passes thru (3D vector)
-    [v] is direction of current (3D vector)
-    [I] is current (can be negative to have |[I]| current flow opposite [v])
-    [R] is radius of wire
-    Gives result in nanotesla
-    """
-    dist_vec = vec_line_to_point(r, r0, v)
-    direction = np.sign(I) * np.cross(v, dist_vec)
-    B_hat = direction / np.linalg.norm(direction)
-    mu_over_2pi = 2e+2  # mu_0 / 2pi (approx), yields result in nanotesla
-    dist = np.linalg.norm(dist_vec)
-    if dist < R:
-        return mu_over_2pi * abs(I) * dist / (R * R) * B_hat
-    else:
-        return mu_over_2pi * abs(I) / dist * B_hat
-
-
-def B_tot(r, wires):
-    """
-    [r] is field observation point (3D vector)
-    [wires] is array of (r0, v, I, R) tuples, one per infinite wire
-    Gives result in nanotesla
-    """
-    result = np.zeros(3)
-    for wire in wires:
-        result += B_wire(r, *wire)
-    return result
-
-
-def B_two_wires(r, d, w1, w2):
-    """
-    Convention: y = 0 is the midline between the two wires
-    and (x, y) = (0, 0) is the midpoint between the two wires.
-    [r] is field observation point (3D vector)
-    [d] is the distance between wires
-    [w1] is the (current, radius) pair of wire 1
-    [w2] is the (current, radius) pair of wire 2
-    Gives result in nanotesla
-    """
-    top_wire_pos = np.array([0, d/2, 0])
-    z_hat = np.array([0, 0, 1])
-    wires = [(top_wire_pos, z_hat, *w1), (-top_wire_pos, z_hat, *w2)]
-    return B_tot(r, wires)
-
-
 def B_vladimirskii(t, Hx, H_dot):
     return [Hx, 0, t * H_dot]
 
