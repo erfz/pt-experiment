@@ -117,13 +117,11 @@ def run_vladimirskii(Hx, H_dot, t_bounds=[-100, 100]):
     return Sf
 
 
-def run_wires(vx, yz, wires, t_bounds, S0):
-    def f_two_wires(t, S): return rhs(
-        t, S, lambda r, t: field_tot(r, wires), vx, yz)
+def run_particle(vx, yz, sources, t_bounds, S0):
+    def f(t, S): return rhs(t, S, lambda r, t: field_tot(r, sources), vx, yz)
 
     rtol, atol = (1e-8, 1e-8)
-    sol = solve_ivp(f_two_wires, t_bounds, S0,
-                    method="LSODA", rtol=rtol, atol=atol)
+    sol = solve_ivp(f, t_bounds, S0, method="LSODA", rtol=rtol, atol=atol)
     Sf = [sol.y[i][-1] for i in range(3)]
 
     # print(f"Number of f evals: {sol.nfev}")
@@ -153,13 +151,13 @@ def run_two_wires_line(vx, d, w1, w2, N, t_bounds):
     rand_floats = rng.random(N) * d/2
     rand_bools = rng.choice([-1, 1], N)
     rand_ys = [x * b for x, b in zip(rand_floats, rand_bools)]
-    rand_Sf = [run_wires(vx, (y, 0), two_wires, t_bounds, S0((y, 0)))
+    rand_Sf = [run_particle(vx, (y, 0), two_wires, t_bounds, S0((y, 0)))
                for y in rand_ys]
     # average over all final spin vectors
     return np.average(rand_Sf, axis=0)
 
 
-# Sf_two_wires = run_wires(1000, (0, 0), generate_two_wires(
+# Sf_two_wires = run_particle(1000, (0, 0), generate_two_wires(
 #     10, (10, 0), (-10, 0)), [-100, 100], [0, 1/2, 0])
 # print(f"Final S (two wires): {Sf_two_wires}")
 
@@ -216,7 +214,7 @@ def run_two_wires_shape_2D(vx, d, w1, w2, N, t_bounds, shape):
     else:
         raise ValueError(f"'{shape}' is not a valid [shape] argument")
 
-    rand_Sf = [run_wires(vx, (y, z), two_wires, t_bounds, S0((y, z)))
+    rand_Sf = [run_particle(vx, (y, z), two_wires, t_bounds, S0((y, z)))
                for y, z in zip(ys, zs)]
     # average over all final spin vectors
     return np.average(rand_Sf, axis=0)
