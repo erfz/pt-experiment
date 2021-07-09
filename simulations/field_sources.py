@@ -4,14 +4,17 @@ import numpy as np
 
 
 def field_tot(r, field_sources):
-    overriders = [x for x in field_sources
-                  if isinstance(x, Overriding) and x.isinside(r)]
+    overriders = [
+        x for x in field_sources if isinstance(x, Overriding) and x.isinside(r)
+    ]
     num_overriders = len(overriders)
 
     if num_overriders > 1:
         raise ValueError(
             f"More than 1 active overriding field source at this position",
-            r, field_sources)
+            r,
+            field_sources,
+        )
     elif num_overriders == 1:
         return overriders[0].field(r)
     else:
@@ -52,7 +55,7 @@ class InfiniteWire(FieldSource):
         dist_vec = self.dist_vec(r)
         direction = np.cross(self.I, dist_vec)
         B_hat = direction / np.linalg.norm(direction)
-        mu_over_2pi = 2e+2  # mu_0 / 2pi (approx), yields result in nanotesla
+        mu_over_2pi = 2e2  # mu_0 / 2pi (approx), yields result in nanotesla
         dist = np.linalg.norm(dist_vec)
         I_norm = np.linalg.norm(self.I)
         if dist < self.R:
@@ -72,7 +75,7 @@ class Box(Bounded):
             ri = r[i]
             pi = self.p[i]
             di = self.dims[i]
-            if not(ri >= pi and ri <= pi + di):
+            if not (ri >= pi and ri <= pi + di):
                 return False
         return True
 

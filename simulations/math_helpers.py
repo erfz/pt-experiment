@@ -13,9 +13,9 @@ def rand_cluster(n, c, r):
     x, y = c
     points = []
     for i in range(n):
-        theta = 2*math.pi*random()
-        s = r*random()
-        points.append((x+s*math.cos(theta), y+s*math.sin(theta)))
+        theta = 2 * math.pi * random()
+        s = r * random()
+        points.append((x + s * math.cos(theta), y + s * math.sin(theta)))
     return points
 
 

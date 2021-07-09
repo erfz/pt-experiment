@@ -26,7 +26,7 @@ def rhs(t, S, B, vx, yz=(0, 0)):
     """
     # mu_n (neutron) / h-bar scaled so that c*S x B (in nT) is in h-bar/second
     c = 2 * -9.162e-2
-    return np.cross(c*S, B(r_particle(vx, t, yz), t))
+    return np.cross(c * S, B(r_particle(vx, t, yz), t))
 
 
 def naive(f, t_bounds, y0, num_pts):
@@ -48,12 +48,14 @@ def run_vladimirskii(Hx, H_dot, t_bounds=[-100, 100]):
         H_dot = -100 for ~75.0% expected realignment
         H_dot = -200 for ~86.6% expected realignment
     """
-    def f_vladimirskii(t, S): return rhs(
-        t, S, lambda r, t: B_vladimirskii(t, Hx, H_dot), 0)
+
+    def f_vladimirskii(t, S):
+        return rhs(t, S, lambda r, t: B_vladimirskii(t, Hx, H_dot), 0)
 
     rtol, atol = (1e-8, 1e-8)
-    sol = solve_ivp(f_vladimirskii, t_bounds, [0, 0, 1/2],
-                    method="LSODA", rtol=rtol, atol=atol)
+    sol = solve_ivp(
+        f_vladimirskii, t_bounds, [0, 0, 1 / 2], method="LSODA", rtol=rtol, atol=atol
+    )
     Sf = [sol.y[i][-1] for i in range(3)]
 
     # print(f"Number of f evals: {sol.nfev}")
@@ -63,7 +65,8 @@ def run_vladimirskii(Hx, H_dot, t_bounds=[-100, 100]):
 
 
 def run_particle(vx, yz, sources, t_bounds, S0):
-    def f(t, S): return rhs(t, S, lambda r, t: field_tot(r, sources), vx, yz)
+    def f(t, S):
+        return rhs(t, S, lambda r, t: field_tot(r, sources), vx, yz)
 
     rtol, atol = (1e-8, 1e-8)
     sol = solve_ivp(f, t_bounds, S0, method="LSODA", rtol=rtol, atol=atol)
@@ -80,8 +83,10 @@ def generate_two_wires(d, w1, w2):
     I2, R2 = w2
     z_hat = np.array([0, 0, 1])
     y_hat = np.array([0, 1, 0])
-    return [InfiniteWire(d/2 * y_hat, I1 * z_hat, R1),
-            InfiniteWire(-d/2 * y_hat, I2 * z_hat, R2)]
+    return [
+        InfiniteWire(d / 2 * y_hat, I1 * z_hat, R1),
+        InfiniteWire(-d / 2 * y_hat, I2 * z_hat, R2),
+    ]
 
 
 def run_two_wires_line(vx, d, w1, w2, N, t_bounds):
@@ -93,11 +98,12 @@ def run_two_wires_line(vx, d, w1, w2, N, t_bounds):
         return B0 / np.linalg.norm(B0) / 2
 
     rng = np.random.default_rng()
-    rand_floats = rng.random(N) * d/2
+    rand_floats = rng.random(N) * d / 2
     rand_bools = rng.choice([-1, 1], N)
     rand_ys = [x * b for x, b in zip(rand_floats, rand_bools)]
-    rand_Sf = [run_particle(vx, (y, 0), two_wires, t_bounds, S0((y, 0)))
-               for y in rand_ys]
+    rand_Sf = [
+        run_particle(vx, (y, 0), two_wires, t_bounds, S0((y, 0))) for y in rand_ys
+    ]
     # average over all final spin vectors
     return np.average(rand_Sf, axis=0)
 
@@ -111,14 +117,16 @@ def run_two_wires_shape_2D(vx, d, w1, w2, N, t_bounds, shape):
         return B0 / np.linalg.norm(B0) / 2
 
     if shape == "square":
-        ys, zs = zip(*rand_square(N, (-d/2, 0), d))
+        ys, zs = zip(*rand_square(N, (-d / 2, 0), d))
     elif shape == "circle":
-        ys, zs = zip(*rand_cluster(N, (0, 0), d/2))
+        ys, zs = zip(*rand_cluster(N, (0, 0), d / 2))
     else:
         raise ValueError(f"'{shape}' is not a valid [shape] argument")
 
-    rand_Sf = [run_particle(vx, (y, z), two_wires, t_bounds, S0((y, z)))
-               for y, z in zip(ys, zs)]
+    rand_Sf = [
+        run_particle(vx, (y, z), two_wires, t_bounds, S0((y, z)))
+        for y, z in zip(ys, zs)
+    ]
     # average over all final spin vectors
     return np.average(rand_Sf, axis=0)
 
