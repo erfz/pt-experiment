@@ -75,7 +75,7 @@ class Box(Bounded):
             ri = r[i]
             pi = self.p[i]
             di = self.dims[i]
-            if not (ri >= pi and ri <= pi + di):
+            if not (pi <= ri <= pi + di):
                 return False
         return True
 
