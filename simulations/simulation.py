@@ -36,7 +36,7 @@ def naive(f, t_bounds, y0, num_pts):
     return y
 
 
-def run_particle(v, r0, sources, t_bounds, S0):
+def run_particle_outputs(v, r0, sources, t_bounds, S0):
     def f(t, S):
         return rhs(t, S, lambda r, t: field_tot(r, t, sources), v, r0)
 
@@ -47,7 +47,11 @@ def run_particle(v, r0, sources, t_bounds, S0):
     # print(f"Number of f evals: {sol.nfev}")
     # print(f"Number of time points: {len(sol.t)}")
 
-    return Sf
+    return Sf, sol.t, sol.y
+
+
+def run_particle(v, r0, sources, t_bounds, S0):
+    return run_particle_outputs(v, r0, sources, t_bounds, S0)[0]
 
 
 def generate_two_wires(d, w1, w2):
