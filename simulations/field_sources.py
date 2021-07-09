@@ -33,6 +33,13 @@ class FieldSource(ABC):
 
 class Vladimirskii(FieldSource):
     def __init__(self, Hx, H_dot):
+        """
+        [Hx, H_dot] must be in nanotesla.
+        With Hx = 10:
+            H_dot = -41.5 for ~50.0% expected realignment
+            H_dot = -100 for ~75.0% expected realignment
+            H_dot = -200 for ~86.6% expected realignment
+        """
         self.Hx = Hx
         self.H_dot = H_dot
 

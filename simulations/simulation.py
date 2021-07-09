@@ -5,10 +5,6 @@ from field_sources import *
 from math_helpers import *
 
 
-def B_vladimirskii(t, Hx, H_dot):
-    return [Hx, 0, t * H_dot]
-
-
 def r_particle(t, v, r0):
     """
     Position vector of particle throughout simulation,
@@ -38,33 +34,6 @@ def naive(f, t_bounds, y0, num_pts):
     for t in range:
         y += step * f(t, y)
     return y
-
-
-def run_vladimirskii(Hx, H_dot, t_bounds=[-100, 100]):
-    """
-    Velocity independent.
-    [Hx, H_dot] must be in nanotesla.
-    With Hx = 10:
-        H_dot = -41.5 for ~50.0% expected realignment
-        H_dot = -100 for ~75.0% expected realignment
-        H_dot = -200 for ~86.6% expected realignment
-    """
-
-    def f_vladimirskii(t, S):
-        return rhs(
-            t, S, lambda r, t: B_vladimirskii(t, Hx, H_dot), np.empty(3), np.empty(3)
-        )
-
-    rtol, atol = (1e-8, 1e-8)
-    sol = solve_ivp(
-        f_vladimirskii, t_bounds, [0, 0, 1 / 2], method="LSODA", rtol=rtol, atol=atol
-    )
-    Sf = [sol.y[i][-1] for i in range(3)]
-
-    # print(f"Number of f evals: {sol.nfev}")
-    # print(f"Number of time points: {len(sol.t)}")
-
-    return Sf
 
 
 def run_particle(v, r0, sources, t_bounds, S0):
@@ -145,7 +114,9 @@ def run_two_wires_shape_2D(vx, d, w1, w2, N, t_bounds, shape):
 # )
 # print(f"Final S (two wires): {Sf_two_wires}")
 
-# Sf_vlad = run_vladimirskii(10, -41.5)
+# Sf_vlad = run_particle(
+#     np.empty(3), np.empty(3), [Vladimirskii(10, -41.5)], [-100, 100], [0, 0, 1 / 2]
+# )
 # print(f"Final S (Vladimirskii): {Sf_vlad}")
 # print(f"-> Corresponding realignment probability: {100 * (Sf_vlad[2] + 1/2)}%")
 
