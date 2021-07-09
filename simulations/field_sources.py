@@ -4,10 +4,21 @@ import numpy as np
 
 
 def field_tot(r, field_sources):
-    result = np.zeros(3)
-    for source in field_sources:
-        result += source.field(r)
-    return result
+    overriders = [x for x in field_sources
+                  if isinstance(x, Overriding) and x.isinside(r)]
+    num_overriders = len(overriders)
+
+    if num_overriders > 1:
+        raise ValueError(
+            f"More than 1 active overriding field source at this position",
+            r, field_sources)
+    elif num_overriders == 1:
+        return overriders[0].field(r)
+    else:
+        result = np.zeros(3)
+        for source in field_sources:
+            result += source.field(r)
+        return result
 
 
 class FieldSource(ABC):
