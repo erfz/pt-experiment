@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 
-def field_tot(r, field_sources):
+def field_tot(r, t, field_sources):
     overriders = [
         x for x in field_sources if isinstance(x, Overriding) and x.isinside(r)
     ]
@@ -11,23 +11,33 @@ def field_tot(r, field_sources):
 
     if num_overriders > 1:
         raise ValueError(
-            f"More than 1 active overriding field source at this position",
+            f"More than 1 active overriding field source at (r, t) = ({r}, {t})",
             r,
+            t,
             field_sources,
         )
     elif num_overriders == 1:
-        return overriders[0].field(r)
+        return overriders[0].field(r, t)
     else:
         result = np.zeros(3)
         for source in field_sources:
-            result += source.field(r)
+            result += source.field(r, t)
         return result
 
 
 class FieldSource(ABC):
     @abstractmethod
-    def field(self, r):
+    def field(self, r, t):
         pass
+
+
+class Vladimirskii(FieldSource):
+    def __init__(self, Hx, H_dot):
+        self.Hx = Hx
+        self.H_dot = H_dot
+
+    def field(self, r, t):
+        return [self.Hx, 0, t * self.H_dot]
 
 
 class Bounded(FieldSource):
@@ -51,7 +61,7 @@ class InfiniteWire(FieldSource):
         x = r - self.p
         return x - n * np.dot(x, n)
 
-    def field(self, r):
+    def field(self, r, t):
         dist_vec = self.dist_vec(r)
         direction = np.cross(self.I, dist_vec)
         B_hat = direction / np.linalg.norm(direction)
@@ -68,7 +78,7 @@ class Box(Bounded):
     def __init__(self, p, dims, B):
         self.p = np.array(p)
         self.dims = np.array(dims)
-        self.B = lambda r: np.asarray(B(r))
+        self.B = lambda r, t: np.asarray(B(r, t))
 
     def isinside(self, r):
         for i in range(3):
@@ -79,9 +89,9 @@ class Box(Bounded):
                 return False
         return True
 
-    def field(self, r):
+    def field(self, r, t):
         if self.isinside(r):
-            return self.B(r)
+            return self.B(r, t)
         else:
             return np.zeros(3)
 

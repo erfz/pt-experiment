@@ -69,7 +69,7 @@ def run_vladimirskii(Hx, H_dot, t_bounds=[-100, 100]):
 
 def run_particle(v, r0, sources, t_bounds, S0):
     def f(t, S):
-        return rhs(t, S, lambda r, t: field_tot(r, sources), v, r0)
+        return rhs(t, S, lambda r, t: field_tot(r, t, sources), v, r0)
 
     rtol, atol = (1e-8, 1e-8)
     sol = solve_ivp(f, t_bounds, S0, method="LSODA", rtol=rtol, atol=atol)
@@ -98,7 +98,7 @@ def run_two_wires_line(vx, d, w1, w2, N, t_bounds):
 
     def S0(r0):
         t0, tf = t_bounds
-        B0 = field_tot(r_particle(t0, v, r0), two_wires)
+        B0 = field_tot(r_particle(t0, v, r0), 0, two_wires)
         return B0 / np.linalg.norm(B0) / 2
 
     rng = np.random.default_rng()
@@ -118,7 +118,7 @@ def run_two_wires_shape_2D(vx, d, w1, w2, N, t_bounds, shape):
 
     def S0(r0):
         t0, tf = t_bounds
-        B0 = field_tot(r_particle(t0, v, r0), two_wires)
+        B0 = field_tot(r_particle(t0, v, r0), 0, two_wires)
         return B0 / np.linalg.norm(B0) / 2
 
     if shape == "square":
