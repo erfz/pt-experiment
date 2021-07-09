@@ -50,11 +50,11 @@ class InfiniteWire(FieldSource):
             return mu_over_2pi * I_norm / dist * B_hat
 
 
-class ConstantFieldBox(Bounded):
+class Box(Bounded):
     def __init__(self, p, dims, B):
         self.p = np.array(p)
         self.dims = np.array(dims)
-        self.B = np.array(B)
+        self.B = lambda r: np.asarray(B(r))
 
     def isinside(self, r):
         for i in range(3):
@@ -67,10 +67,10 @@ class ConstantFieldBox(Bounded):
 
     def field(self, r):
         if self.isinside(r):
-            return self.B
+            return self.B(r)
         else:
             return np.zeros(3)
 
 
-class OverridingConstantFieldBox(ConstantFieldBox, Overriding):
+class OverridingBox(Box, Overriding):
     pass
