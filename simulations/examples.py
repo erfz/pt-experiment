@@ -55,7 +55,7 @@ plt.ylabel("Probability of non-adiabatic realignment")
 plt.legend()
 plt.show()
 # %%
-_, ts, spins = run_particle_outputs(
+Sf, ts, spins = run_particle_outputs(
     [1000, 0, 0],
     [0, 4.5, 0],
     generate_two_wires(10, (10, 0), (10, 0)),
@@ -63,6 +63,7 @@ _, ts, spins = run_particle_outputs(
     [0, -1 / 2, 0],
 )
 
+print(f"Final S (two wires, particle offset closer to top wire): {Sf}")
 plt.plot(ts, list(zip(*spins)), label=("S_x", "S_y", "S_z"))
 plt.xlabel("Time (s)")
 plt.ylabel("Spin components")
