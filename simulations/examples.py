@@ -26,6 +26,7 @@ plt.xlabel("Time (s)")
 plt.ylabel("Spin components")
 plt.legend()
 plt.show()
+
 # %%
 Hx = 10
 H_dot = -41.5
@@ -40,6 +41,7 @@ plt.xlabel("Time (s)")
 plt.ylabel("Spin components")
 plt.legend()
 plt.show()
+
 # %%
 Sf_rand_line = run_two_wires_line(1000, 10, (10, 0), (-10, 0), 100, [-100, 100])
 print(f"Final S (rand line): {Sf_rand_line}")
@@ -47,6 +49,7 @@ print(f"Final S (rand line): {Sf_rand_line}")
 shape = "square"
 Sf_shape = run_two_wires_shape_2D(1000, 10, (10, 0), (-10, 0), 100, [-100, 100], shape)
 print(f"Final S ({shape}): {Sf_shape}")
+
 # %%
 Hx = 10
 H_dots = np.linspace(-10, -200, 20)
@@ -71,6 +74,7 @@ plt.xlabel("H_dot (nT/s)")
 plt.ylabel("Probability of non-adiabatic realignment")
 plt.legend()
 plt.show()
+
 # %%
 Sf, ts, spins = Particle(
     [1000, 0, 0],
