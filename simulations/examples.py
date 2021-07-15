@@ -77,13 +77,11 @@ plt.show()
 
 # %%
 Sf, ts, spins = Particle(
-    [1000, 0, 0],
-    [0, 4.5, 0],
-    generate_two_wires(10, (10, 0), (10, 0)),
+    [5, 0, 0],
+    [0, 4.5 / 100, 0],
+    generate_two_wires(5 / 100, (0.3, 0), (0.3, 0)),
     [-100, 100],
-    [0, -1 / 2, 0],
 ).simulate_with_output()
-
 print(f"Final S (two wires, particle offset closer to top wire): {Sf}")
 plt.plot(ts, list(zip(*spins)), label=("S_x", "S_y", "S_z"))
 plt.xlabel("Time (s)")
@@ -92,3 +90,25 @@ plt.legend()
 plt.show()
 
 # %%
+incoming_region = OverridingBox(
+    [-100, -50, -50], [100, 100, 100], lambda r, t: 3e-6 * np.array([0, 1, 0])
+)
+superconductor = OverridingBox(
+    [0, -50, -50], [8e-4, 100, 100], lambda r, t: np.zeros(3)
+)
+outgoing_region = OverridingBox(
+    [8e-4, -50, -50], [100, 100, 100], lambda r, t: -3e-9 * np.array([0, 1, 0])
+)
+Sf, ts, spins = Particle(
+    [100, 0, 0],
+    [0, 0, 0],
+    [incoming_region, superconductor, outgoing_region],
+    [-1, 1],
+    [0, 1 / 2, 0],
+).simulate_with_output()
+print(f"Final S (through superconductor): {Sf}")
+plt.plot(ts, list(zip(*spins)), label=("S_x", "S_y", "S_z"))
+plt.xlabel("Time (s)")
+plt.ylabel("Spin components")
+plt.legend()
+plt.show()
