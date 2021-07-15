@@ -11,7 +11,7 @@ class Particle:
         self.r0 = np.array(r0)
         self.sources = sources
         self.t_bounds = t_bounds
-        self.S0 = normed(self.B0()) / 2 if S0 is None else np.array(S0)
+        self.S0 = normed(self.B0()) if S0 is None else np.array(S0)
 
     def r(self, t):
         return self.r0 + self.v * t

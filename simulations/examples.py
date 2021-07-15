@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 
 def sim_vlad_probability(S):
-    return 100 * (S[2] + 1 / 2)
+    return 50 * (S[2] + 1)
 
 
 def theory_vlad_probability(Hx, H_dot):
@@ -18,7 +18,7 @@ Sf, ts, spins = Particle(
     np.zeros(3),
     generate_two_wires(10, (10, 0), (-10, 0)),
     [-100, 100],
-    [0, 1 / 2, 0],
+    [0, 1, 0],
 ).simulate_with_output()
 print(f"Final S (two wires): {Sf}")
 plt.plot(ts, list(zip(*spins)), label=("S_x", "S_y", "S_z"))
@@ -31,7 +31,7 @@ plt.show()
 Hx = 10
 H_dot = -41.5
 Sf, ts, spins = Particle(
-    np.empty(3), np.empty(3), [Vladimirskii(Hx, H_dot)], [-10, 10], [0, 0, 1 / 2]
+    np.empty(3), np.empty(3), [Vladimirskii(Hx, H_dot)], [-10, 10], [0, 0, 1]
 ).simulate_with_output()
 print(f"Final S (Vladimirskii): {Sf}")
 print(f"Corresponding realignment probability: {sim_vlad_probability(Sf)}%")
@@ -60,7 +60,7 @@ sim_ps = [
             np.empty(3),
             [Vladimirskii(Hx, H_dot)],
             [-10, 10],
-            [0, 0, 1 / 2],
+            [0, 0, 1],
         ).simulate()
     )
     for H_dot in H_dots
@@ -104,7 +104,7 @@ Sf, ts, spins = Particle(
     [0, 0, 0],
     [incoming_region, superconductor, outgoing_region],
     [-1, 1],
-    [0, 1 / 2, 0],
+    [0, 1, 0],
 ).simulate_with_output()
 print(f"Final S (through superconductor): {Sf}")
 plt.plot(ts, list(zip(*spins)), label=("S_x", "S_y", "S_z"))
