@@ -90,6 +90,20 @@ plt.legend()
 plt.show()
 
 # %%
+Sf, ts, spins = Particle(
+    [100, 0, 0],
+    [0, 4.5 / 100, 0],
+    generate_two_wires(5 / 100, (0.3, 0), (0.3, 0)),
+    [-100, 100],
+).simulate_with_output()
+print(f"Final S (two wires, particle offset closer to top wire, faster): {Sf}")
+plt.plot(ts, list(zip(*spins)), label=("S_x", "S_y", "S_z"))
+plt.xlabel("Time (s)")
+plt.ylabel("Spin components")
+plt.legend()
+plt.show()
+
+# %%
 incoming_region = OverridingBox(
     [-100, -50, -50], [100, 100, 100], lambda r, t: 3e-6 * np.array([0, 1, 0])
 )
