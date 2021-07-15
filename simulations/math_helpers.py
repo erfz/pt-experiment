@@ -5,6 +5,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+def normed(v):
+    return v / np.linalg.norm(v)
+
+
 def rand_cluster(n, c, r):
     """
     returns n random points in disk of radius r centered at c
