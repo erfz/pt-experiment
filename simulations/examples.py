@@ -43,11 +43,15 @@ plt.legend()
 plt.show()
 
 # %%
-Sf_rand_line = run_two_wires_line(1000, 10, (10, 0), (-10, 0), 100, [-100, 100])
+Sf_rand_line = rand_line_sim(
+    1000, 10, generate_two_wires(10, (10, 0), (-10, 0)), 100, [-100, 100]
+)
 print(f"Final S (rand line): {Sf_rand_line}")
 
 shape = "square"
-Sf_shape = run_two_wires_shape_2D(1000, 10, (10, 0), (-10, 0), 100, [-100, 100], shape)
+Sf_shape = rand_shape_2D_sim(
+    1000, 10, generate_two_wires(10, (10, 0), (-10, 0)), 100, [-100, 100], shape
+)
 print(f"Final S ({shape}): {Sf_shape}")
 
 # %%

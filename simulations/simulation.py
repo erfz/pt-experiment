@@ -62,23 +62,20 @@ def generate_two_wires(d, w1, w2):
     ]
 
 
-def run_two_wires_line(vx, d, w1, w2, N, t_bounds):
-    two_wires = generate_two_wires(d, w1, w2)
-    v = [vx, 0, 0]
-
+def rand_line_sim(vx, d, oriented_sources, N, t_bounds):
     rng = np.random.default_rng()
     rand_floats = rng.random(N) * d / 2
     rand_bools = rng.choice([-1, 1], N)
     rand_ys = [x * b for x, b in zip(rand_floats, rand_bools)]
-    rand_Sf = [Particle(v, [0, y, 0], two_wires, t_bounds).simulate() for y in rand_ys]
+    rand_Sf = [
+        Particle([vx, 0, 0], [0, y, 0], oriented_sources, t_bounds).simulate()
+        for y in rand_ys
+    ]
     # average over all final spin vectors
     return np.average(rand_Sf, axis=0)
 
 
-def run_two_wires_shape_2D(vx, d, w1, w2, N, t_bounds, shape):
-    two_wires = generate_two_wires(d, w1, w2)
-    v = [vx, 0, 0]
-
+def rand_shape_2D_sim(vx, d, oriented_sources, N, t_bounds, shape):
     if shape == "square":
         ys, zs = zip(*rand_square(N, (-d / 2, 0), d))
     elif shape == "circle":
@@ -87,7 +84,8 @@ def run_two_wires_shape_2D(vx, d, w1, w2, N, t_bounds, shape):
         raise ValueError(f"'{shape}' is not a valid [shape] argument")
 
     rand_Sf = [
-        Particle(v, [0, y, z], two_wires, t_bounds).simulate() for y, z in zip(ys, zs)
+        Particle([vx, 0, 0], [0, y, z], oriented_sources, t_bounds).simulate()
+        for y, z in zip(ys, zs)
     ]
     # average over all final spin vectors
     return np.average(rand_Sf, axis=0)
