@@ -9,6 +9,11 @@ def normed(v):
     return v / np.linalg.norm(v)
 
 
+def rand_line(n, c, l):
+    rng = np.random.default_rng()
+    return rng.random(n) * l + c
+
+
 def rand_cluster(n, c, r):
     """
     returns n random points in disk of radius r centered at c

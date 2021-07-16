@@ -62,21 +62,10 @@ def generate_two_wires(d, w1, w2):
     ]
 
 
-def rand_line_sim(vx, d, oriented_sources, N, t_bounds):
-    rng = np.random.default_rng()
-    rand_floats = rng.random(N) * d / 2
-    rand_bools = rng.choice([-1, 1], N)
-    rand_ys = [x * b for x, b in zip(rand_floats, rand_bools)]
-    rand_Sf = [
-        Particle([vx, 0, 0], [0, y, 0], oriented_sources, t_bounds).simulate()
-        for y in rand_ys
-    ]
-    # average over all final spin vectors
-    return np.average(rand_Sf, axis=0)
-
-
-def rand_shape_2D_sim(vx, d, oriented_sources, N, t_bounds, shape):
-    if shape == "square":
+def rand_shape_sim(vx, d, oriented_sources, N, t_bounds, shape):
+    if shape == "line":
+        shape_points = ((y, 0) for y in rand_line(N, -d / 2, d))
+    elif shape == "square":
         shape_points = rand_square(N, (-d / 2, 0), d)
     elif shape == "circle":
         shape_points = rand_cluster(N, (0, 0), d / 2)
