@@ -15,12 +15,10 @@ def rand_cluster(n, c, r):
     Source: https://stackoverflow.com/a/44356472
     """
     x, y = c
-    points = []
     for i in range(n):
         theta = 2 * math.pi * random()
         s = r * random()
-        points.append((x + s * math.cos(theta), y + s * math.sin(theta)))
-    return points
+        yield (x + s * math.cos(theta), y + s * math.sin(theta))
 
 
 def rand_square(n, c, s):
@@ -28,7 +26,7 @@ def rand_square(n, c, s):
     rng = np.random.default_rng()
     xs = rng.random(n) * s + x0
     ys = rng.random(n) * s + y0
-    return list(zip(xs, ys))
+    return zip(xs, ys)
 
 
 # clst = rand_cluster(10000, (0, 0), 1)

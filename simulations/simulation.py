@@ -77,15 +77,15 @@ def rand_line_sim(vx, d, oriented_sources, N, t_bounds):
 
 def rand_shape_2D_sim(vx, d, oriented_sources, N, t_bounds, shape):
     if shape == "square":
-        ys, zs = zip(*rand_square(N, (-d / 2, 0), d))
+        shape_points = rand_square(N, (-d / 2, 0), d)
     elif shape == "circle":
-        ys, zs = zip(*rand_cluster(N, (0, 0), d / 2))
+        shape_points = rand_cluster(N, (0, 0), d / 2)
     else:
         raise ValueError(f"'{shape}' is not a valid [shape] argument")
 
     rand_Sf = [
         Particle([vx, 0, 0], [0, y, z], oriented_sources, t_bounds).simulate()
-        for y, z in zip(ys, zs)
+        for y, z in shape_points
     ]
     # average over all final spin vectors
     return np.average(rand_Sf, axis=0)
