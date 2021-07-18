@@ -3,6 +3,7 @@ from random import random
 
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.spatial.transform import Rotation
 
 
 def normed(v):
@@ -32,6 +33,12 @@ def rand_square(n, c, s):
     xs = rng.random(n) * s + x0
     ys = rng.random(n) * s + y0
     return zip(xs, ys)
+
+
+def rotate(v, axis, theta):
+    axis /= np.linalg.norm(axis)  # normalize the rotation vector first
+    rot = Rotation.from_rotvec(theta * axis)
+    return rot.apply(v)
 
 
 # clst = rand_cluster(10000, (0, 0), 1)
