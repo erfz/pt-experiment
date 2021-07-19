@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from math_helpers import rotate
 
 import numpy as np
 
@@ -105,3 +106,9 @@ class Box(Bounded):
 
 class OverridingBox(Box, Overriding):
     pass
+
+
+def metglas_domain_field(sat, B_sat, rot_vec):
+    rng = np.random.default_rng()
+    theta = rng.random() * np.pi * 2
+    return rng.choice([B_sat, rotate(B_sat, rot_vec, theta)], p=[sat, 1 - sat])
