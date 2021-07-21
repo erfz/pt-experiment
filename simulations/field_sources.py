@@ -89,10 +89,7 @@ class Box(Bounded):
         self.B = lambda r, t: np.asarray(B(r, t))
 
     def isinside(self, r):
-        for i in range(3):
-            ri = r[i]
-            pi = self.p[i]
-            di = self.dims[i]
+        for ri, pi, di in zip(r, self.p, self.dims):
             if not (pi <= ri <= pi + di):
                 return False
         return True
@@ -105,7 +102,8 @@ class Box(Bounded):
 
 
 class OverridingBox(Box, Overriding):
-    pass
+    def field(self, r, t):
+        return self.B(r, t)
 
 
 class Metglas(Overriding):
