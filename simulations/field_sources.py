@@ -108,7 +108,34 @@ class OverridingBox(Box, Overriding):
     pass
 
 
-def metglas_domain_field(sat, B_sat, rot_vec):
-    rng = np.random.default_rng()
-    theta = rng.random() * np.pi * 2
-    return rng.choice([B_sat, rotate(B_sat, rot_vec, theta)], p=[sat, 1 - sat])
+class Metglas(Overriding):
+    def __init__(self, p, B_sat, rot_vec, sat, cell_dims, cells_per_dim):
+        def generate_domain_field():
+            rng = np.random.default_rng()
+            theta = rng.random() * np.pi * 2
+            return rng.choice([B_sat, rotate(B_sat, rot_vec, theta)], p=[sat, 1 - sat])
+
+        self.p = np.array(p)
+        self.cell_dims = np.array(cell_dims)
+        self.cells_per_dim = np.array(cells_per_dim)
+
+        cells = [generate_domain_field() for i in range(np.prod(cells_per_dim))]
+        self.cells = np.reshape(cells, (*cells_per_dim, 3))
+
+    def get_indices(self, r):
+        return tuple((r - self.p) // self.cell_dims)
+
+    def isinside(self, r):
+        indices = self.get_indices(r)
+        for i, n in zip(indices, self.cells_per_dim):
+            if not (0 <= i <= n - 1):
+                return False
+        return True
+
+    def field(self, r, t):
+        indices = self.get_indices(r)
+        return self.cells[indices]
+
+
+# x = Metglas([0, 0, 0], [1, 2, 3], [0, 0, 1], 0.8, [10, 10, 10], [2, 2, 2])
+# print(x.field([95, 41, 100], 0))
