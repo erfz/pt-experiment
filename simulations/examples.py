@@ -111,29 +111,36 @@ plt.show()
 # %%
 x_hat = np.array([1.0, 0, 0])
 y_hat = np.array([0, 1.0, 0])
+B0 = 3000  # corresponds to 3000 nT = 3 microtesla
+B_metglas = 5e8  # corresponds to 5e8 nT = 0.5 T
 incoming_region = OverridingBox(
-    [-100, -50, -50], [100, 100, 100], lambda r, t: 3e-6 * y_hat
+    [-100, -50, -50], [100, 100, 100], lambda r, t: B0 * y_hat
 )
 superconductor = OverridingBox(
     [0, -50, -50], [8e-4, 100, 100], lambda r, t: np.zeros(3)
 )
-outgoing_region = OverridingBox(
-    [8e-4, -50, -50], [100, 100, 100], lambda r, t: -3e-9 * y_hat
+between_sc_metglas = OverridingBox(
+    [8e-4, -50, -50], [100, 100, 100], lambda r, t: -B0 / 1000 * y_hat
 )
 metglas = Metglas(
-    [101, -50, -50], -5 * y_hat, x_hat, 0.5, 10 * np.ones(3), [10, 10, 10]
+    [101, -50, -50], -B_metglas * y_hat, x_hat, 0.5, 10 * np.ones(3), [10, 10, 10]
+)
+outging_region = OverridingBox(
+    [205, -50, -50], [100, 100, 100], lambda r, t: -B0 / 1000 * y_hat
 )
 Sf, ts, spins = Particle(
     [100, 0, 0],
     [0, 0, 0],
-    [incoming_region, superconductor, outgoing_region, metglas],
-    [-2, 2],
+    [incoming_region, superconductor, between_sc_metglas, metglas, outging_region],
+    [-1.5, 3],
     y_hat,
 ).simulate_with_output()
-print(ts)
+print(f"Number of t evals: {len(ts)}")
 print(f"Final S (through superconductor): {Sf}")
 plt.plot(ts, list(zip(*spins)), label=("S_x", "S_y", "S_z"))
 plt.xlabel("Time (s)")
 plt.ylabel("Spin components")
 plt.legend()
 plt.show()
+
+# %%
