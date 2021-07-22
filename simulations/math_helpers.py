@@ -36,7 +36,7 @@ def rand_square(n, c, s):
 
 
 def rotate(v, rot_vec, theta):
-    rot_vec /= np.linalg.norm(rot_vec)  # normalize the rotation vector first
+    rot_vec = normed(rot_vec)  # normalize the rotation vector first
     rot = Rotation.from_rotvec(theta * rot_vec)
     return rot.apply(v)
 
