@@ -22,6 +22,8 @@ def field_tot(r, t, field_sources):
     else:
         result = np.zeros(3)
         for source in field_sources:
+            if isinstance(source, Overriding):
+                continue
             result += source.field(r, t)
         return result
 
@@ -121,7 +123,7 @@ class Metglas(Overriding):
         self.cells = np.reshape(cells, (*cells_per_dim, 3))
 
     def get_indices(self, r):
-        return tuple((r - self.p) // self.cell_dims)
+        return tuple(((r - self.p) // self.cell_dims).astype(int))
 
     def isinside(self, r):
         indices = self.get_indices(r)
@@ -133,7 +135,3 @@ class Metglas(Overriding):
     def field(self, r, t):
         indices = self.get_indices(r)
         return self.cells[indices]
-
-
-# x = Metglas([0, 0, 0], [1, 2, 3], [0, 0, 1], 0.8, [10, 10, 10], [2, 2, 2])
-# print(x.field([95, 41, 100], 0))

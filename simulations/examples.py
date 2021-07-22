@@ -109,22 +109,28 @@ plt.legend()
 plt.show()
 
 # %%
+x_hat = np.array([1.0, 0, 0])
+y_hat = np.array([0, 1.0, 0])
 incoming_region = OverridingBox(
-    [-100, -50, -50], [100, 100, 100], lambda r, t: 3e-6 * np.array([0, 1, 0])
+    [-100, -50, -50], [100, 100, 100], lambda r, t: 3e-6 * y_hat
 )
 superconductor = OverridingBox(
     [0, -50, -50], [8e-4, 100, 100], lambda r, t: np.zeros(3)
 )
 outgoing_region = OverridingBox(
-    [8e-4, -50, -50], [100, 100, 100], lambda r, t: -3e-9 * np.array([0, 1, 0])
+    [8e-4, -50, -50], [100, 100, 100], lambda r, t: -3e-9 * y_hat
+)
+metglas = Metglas(
+    [101, -50, -50], -5 * y_hat, x_hat, 0.5, 10 * np.ones(3), [10, 10, 10]
 )
 Sf, ts, spins = Particle(
     [100, 0, 0],
     [0, 0, 0],
-    [incoming_region, superconductor, outgoing_region],
-    [-1, 1],
-    [0, 1, 0],
+    [incoming_region, superconductor, outgoing_region, metglas],
+    [-2, 2],
+    y_hat,
 ).simulate_with_output()
+print(ts)
 print(f"Final S (through superconductor): {Sf}")
 plt.plot(ts, list(zip(*spins)), label=("S_x", "S_y", "S_z"))
 plt.xlabel("Time (s)")
