@@ -132,7 +132,7 @@ Sf, ts, spins = Particle(
     [100, 0, 0], [0, 0, 0], [metglas], [-0.00000025, 0.00000125], y_hat, 1e-4 / 100000
 ).simulate_with_output()
 print(f"Number of t evals: {len(ts)}")
-print(f"Final S (through superconductor): {Sf}")
+print(f"Final S (through Metglas): {Sf}")
 plt.plot(ts, list(zip(*spins)), label=("S_x", "S_y", "S_z"))
 plt.xlabel("Time (s)")
 plt.ylabel("Spin components")
