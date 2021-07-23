@@ -6,12 +6,13 @@ from math_helpers import *
 
 
 class Particle:
-    def __init__(self, v, r0, sources, t_bounds, S0=None):
+    def __init__(self, v, r0, sources, t_bounds, S0=None, max_step=np.inf):
         self.v = np.array(v)
         self.r0 = np.array(r0)
         self.sources = sources
         self.t_bounds = t_bounds
         self.S0 = normed(self.B0()) if S0 is None else np.array(S0)
+        self.max_step = max_step
 
     def r(self, t):
         return self.r0 + self.v * t
@@ -28,7 +29,7 @@ class Particle:
     def simulate_with_output(self):
         rtol, atol = (1e-8, 1e-8)
         sol = solve_ivp(
-            self.f, self.t_bounds, self.S0, method="LSODA", rtol=rtol, atol=atol
+            self.f, self.t_bounds, self.S0, method="LSODA", rtol=rtol, atol=atol, max_step=self.max_step
         )
         Sf = [sol.y[i][-1] for i in range(3)]
 
