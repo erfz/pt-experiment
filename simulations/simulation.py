@@ -29,7 +29,13 @@ class Particle:
     def simulate_with_output(self):
         rtol, atol = (1e-8, 1e-8)
         sol = solve_ivp(
-            self.f, self.t_bounds, self.S0, method="LSODA", rtol=rtol, atol=atol, max_step=self.max_step
+            self.f,
+            self.t_bounds,
+            self.S0,
+            method="LSODA",
+            rtol=rtol,
+            atol=atol,
+            max_step=self.max_step,
         )
         Sf = [sol.y[i][-1] for i in range(3)]
 
