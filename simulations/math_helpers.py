@@ -7,6 +7,8 @@ from scipy.spatial.transform import Rotation
 
 
 def normed(v):
+    if not np.any(v):
+        return np.zeros_like(v)
     return v / np.linalg.norm(v)
 
 
