@@ -69,7 +69,9 @@ def generate_two_wires(d, w1, w2):
     ]
 
 
-def rand_shape_sim(vx, d, oriented_sources, N, t_bounds, shape):
+def rand_shape_sim(
+    vx, d, oriented_sources, N, t_bounds, shape, S0=None, max_step=np.inf
+):
     if shape == "line":
         shape_points = ((y, 0) for y in rand_line(N, -d / 2, d))
     elif shape == "square":
@@ -80,7 +82,9 @@ def rand_shape_sim(vx, d, oriented_sources, N, t_bounds, shape):
         raise ValueError(f"'{shape}' is not a valid [shape] argument")
 
     rand_Sf = [
-        Particle([vx, 0, 0], [0, y, z], oriented_sources, t_bounds).simulate()
+        Particle(
+            [vx, 0, 0], [0, y, z], oriented_sources, t_bounds, S0, max_step
+        ).simulate()
         for y, z in shape_points
     ]
     # average over all final spin vectors

@@ -126,7 +126,7 @@ B_metglas = 5e8  # corresponds to 5e8 nT = 0.5 T
 #     [205, -50, -50], [100, 100, 100], lambda r, t: -B0 / 1000 * y_hat
 # )
 metglas = Metglas(
-    [0, -50, -50], -B_metglas * y_hat, x_hat, 0.5, [1e-6, 100, 100], [100, 1, 1]
+    [0, -0.05, -50], -B_metglas * y_hat, x_hat, 0.9, [1e-5, 1e-5, 100], [10, 10000, 1]
 )
 Sf, ts, spins = Particle(
     [100, 0, 0], [0, 0, 0], [metglas], [-0.00000025, 0.00000125], y_hat, 1e-4 / 100000
@@ -138,5 +138,11 @@ plt.xlabel("Time (s)")
 plt.ylabel("Spin components")
 plt.legend()
 plt.show()
+
+shape = "square"
+Sf = rand_shape_sim(
+    100, 0.1, [metglas], 100, [-0.00000025, 0.00000125], shape, y_hat, 1e-4 / 100000
+)
+print(f"Final S (thru Metglas, {shape}): {Sf}")
 
 # %%

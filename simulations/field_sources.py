@@ -112,8 +112,12 @@ class Metglas(Overriding):
     def __init__(self, p, B_sat, rot_vec, sat, cell_dims, cells_per_dim):
         def generate_domain_field():
             rng = np.random.default_rng()
-            theta = rng.random() * np.pi * 2
-            return rng.choice([B_sat, rotate(B_sat, rot_vec, theta)], p=[sat, 1 - sat])
+            not_random = rng.choice([True, False], p=[sat, 1 - sat])
+            if not_random:
+                return B_sat
+            else:
+                theta = rng.random() * np.pi * 2
+                return rotate(B_sat, rot_vec, theta)
 
         self.p = np.array(p)
         self.cell_dims = np.array(cell_dims)
