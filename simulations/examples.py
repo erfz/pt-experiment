@@ -109,9 +109,15 @@ plt.legend()
 plt.show()
 
 # %%
+def max_time_step(v_normal, domain_len):
+    return domain_len / v_normal / 10
+
+
 x_hat = np.array([1.0, 0, 0])
 y_hat = np.array([0, 1.0, 0])
 B_metglas = 5e8  # corresponds to 5e8 nT = 0.5 T
+domain_len = 1e-5
+vx = 100
 # B0 = 3000  # corresponds to 3000 nT = 3 microtesla
 # incoming_region = OverridingBox(
 #     [-100, -50, -50], [100, 100, 100], lambda r, t: B0 * y_hat
@@ -126,10 +132,21 @@ B_metglas = 5e8  # corresponds to 5e8 nT = 0.5 T
 #     [205, -50, -50], [100, 100, 100], lambda r, t: -B0 / 1000 * y_hat
 # )
 metglas = Metglas(
-    [0, -0.05, -50], -B_metglas * y_hat, x_hat, 0.9, [1e-5, 1e-5, 100], [10, 10000, 1]
+    [0, -0.05, -50],
+    -B_metglas * y_hat,
+    x_hat,
+    0.9,
+    [domain_len, domain_len, 100],
+    [10, 10000, 1],
 )
+
 Sf, ts, spins = Particle(
-    [100, 0, 0], [0, 0, 0], [metglas], [-0.00000025, 0.00000125], y_hat, 1e-4 / 100000
+    [vx, 0, 0],
+    [0, 0, 0],
+    [metglas],
+    [-0.00000025, 0.00000125],
+    y_hat,
+    max_time_step(vx, domain_len),
 ).simulate_with_output()
 print(f"Number of t evals: {len(ts)}")
 print(f"Final S (through Metglas): {Sf}")
@@ -141,7 +158,14 @@ plt.show()
 
 shape = "square"
 Sf = rand_shape_sim(
-    100, 0.1, [metglas], 100, [-0.00000025, 0.00000125], shape, y_hat, 1e-4 / 100000
+    vx,
+    0.1,
+    [metglas],
+    1000,
+    [-0.00000025, 0.00000125],
+    shape,
+    y_hat,
+    max_time_step(vx, domain_len),
 )
 print(f"Final S (thru Metglas, {shape}): {Sf}")
 
