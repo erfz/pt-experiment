@@ -3,6 +3,9 @@ from simulation import *
 import numpy as np
 import matplotlib.pyplot as plt
 
+x_hat = np.array([1.0, 0, 0])
+y_hat = np.array([0, 1.0, 0])
+
 
 def sim_vlad_probability(S):
     return 50 * (S[2] + 1)
@@ -113,12 +116,11 @@ def max_time_step(v_normal, domain_len):
     return domain_len / v_normal / 10
 
 
-x_hat = np.array([1.0, 0, 0])
-y_hat = np.array([0, 1.0, 0])
-B_metglas = 5e8  # corresponds to 5e8 nT = 0.5 T
 domain_len = 1e-5
+B_metglas = 5e8  # corresponds to 5e8 nT = 0.5 T
+B0 = 3000  # corresponds to 3000 nT = 3 microtesla
 vx = 100
-# B0 = 3000  # corresponds to 3000 nT = 3 microtesla
+
 # incoming_region = OverridingBox(
 #     [-100, -50, -50], [100, 100, 100], lambda r, t: B0 * y_hat
 # )
