@@ -15,6 +15,10 @@ def theory_vlad_probability(Hx, H_dot):
     return np.exp(-np.pi * Hx * Hx / H_dot * -0.09162) * 100
 
 
+def max_time_step(v_normal, domain_len):
+    return domain_len / v_normal / 2
+
+
 # %%
 Sf, ts, spins = Particle(
     [1000, 0, 0],
@@ -112,32 +116,15 @@ plt.legend()
 plt.show()
 
 # %%
-def max_time_step(v_normal, domain_len):
-    return domain_len / v_normal / 10
-
-
 domain_len = 1e-5
 B_metglas = 5e8  # corresponds to 5e8 nT = 0.5 T
-B0 = 3000  # corresponds to 3000 nT = 3 microtesla
 vx = 100
 
-# incoming_region = OverridingBox(
-#     [-100, -50, -50], [100, 100, 100], lambda r, t: B0 * y_hat
-# )
-# superconductor = OverridingBox(
-#     [0, -50, -50], [8e-4, 100, 100], lambda r, t: np.zeros(3)
-# )
-# between_sc_metglas = OverridingBox(
-#     [8e-4, -50, -50], [100, 100, 100], lambda r, t: -B0 / 1000 * y_hat
-# )
-# outging_region = OverridingBox(
-#     [205, -50, -50], [100, 100, 100], lambda r, t: -B0 / 1000 * y_hat
-# )
 metglas = Metglas(
     [0, -0.05, -50],
     -B_metglas * y_hat,
     x_hat,
-    0.9,
+    0.82,
     [domain_len, domain_len, 100],
     [10, 10000, 1],
 )
