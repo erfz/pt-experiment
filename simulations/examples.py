@@ -159,3 +159,83 @@ Sf = rand_shape_sim(
 print(f"Final S (thru Metglas, {shape}): {Sf}")
 
 # %%
+domain_len = 1e-5
+B_metglas = 5e8  # corresponds to 5e8 nT = 0.5 T
+vx = 100
+
+
+def metglas(sat):
+    return Metglas(
+        [0, -0.05, -50],
+        -B_metglas * y_hat,
+        x_hat,
+        sat,
+        [domain_len, domain_len, 100],
+        [10, 10000, 1],
+    )
+
+
+sats = [0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.98, 1]
+
+spins_y = [
+    rand_shape_sim(
+        vx,
+        0.1,
+        [metglas(sat)],
+        1000,
+        [-0.00000025, 0.00000125],
+        "square",
+        y_hat,
+        max_time_step(vx, domain_len),
+    )[1]
+    for sat in sats
+]
+
+plt.scatter(sats, spins_y)
+plt.xlabel("Saturation")
+plt.ylabel("S_y")
+plt.show()
+
+# %%
+B_metglas = 5e8  # corresponds to 5e8 nT = 0.5 T
+vx = 100
+metglas_len = 0.0001  # 0.1 mm
+metglas_width = 0.1  # 0.1 m
+
+
+def metglas(num_layers):
+    domain_len = metglas_len / num_layers
+    return Metglas(
+        [0, -0.05, -50],
+        -B_metglas * y_hat,
+        x_hat,
+        0.8,
+        [domain_len, domain_len, 100],
+        [num_layers, int(metglas_width / domain_len), 1],
+    )
+
+
+Ns = [1, 2, 5, 8, 10, 12, 15, 20]
+
+spins_y = [
+    rand_shape_sim(
+        vx,
+        0.1,
+        [metglas(N)],
+        1000,
+        [-0.00000025, 0.00000125],
+        "square",
+        y_hat,
+        max_time_step(vx, metglas_len / N),
+    )[1]
+    for N in Ns
+]
+
+print(spins_y)
+
+plt.scatter(Ns, spins_y)
+plt.xlabel("Number of domains passed thru per particle")
+plt.ylabel("S_y")
+plt.show()
+
+# %%
