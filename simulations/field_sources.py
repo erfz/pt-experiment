@@ -110,15 +110,16 @@ class OverridingBox(Box, Overriding):
 
 class Metglas(Overriding):
     def __init__(self, p, B_sat, rot_vec, sat, cell_dims, cells_per_dim):
+        rng = np.random.default_rng()
+
         def generate_domain_field():
-            rng = np.random.default_rng()
             not_random = rng.choice([True, False], p=[sat, 1 - sat])
             if not_random:
                 return B_sat
             else:
                 phi = rng.random() * np.pi * 2
                 theta = np.arccos(2 * rng.random() - 1)
-                return np.array(
+                return np.linalg.norm(B_sat) * np.array(
                     [
                         np.cos(phi) * np.sin(theta),
                         np.sin(phi) * np.sin(theta),
