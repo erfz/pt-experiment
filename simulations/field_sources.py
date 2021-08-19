@@ -116,8 +116,17 @@ class Metglas(Overriding):
             if not_random:
                 return B_sat
             else:
-                theta = rng.random() * np.pi * 2
-                return rotate(B_sat, rot_vec, theta)
+                phi = rng.random() * np.pi * 2
+                theta = np.arccos(2 * rng.random() - 1)
+                return np.array(
+                    [
+                        np.cos(phi) * np.sin(theta),
+                        np.sin(phi) * np.sin(theta),
+                        np.cos(theta),
+                    ]
+                )
+                # non uniform mapping alternative
+                # return rotate(B_sat, rot_vec, rng.random() * np.pi * 2)
 
         self.p = np.array(p)
         self.cell_dims = np.array(cell_dims)
