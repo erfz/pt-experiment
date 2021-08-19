@@ -63,6 +63,11 @@ Sf = rand_shape_sim(
 print(f"Final S ({shape}): {Sf}")
 
 # %%
+def sim_time(Hx, H_dot):
+    t = Hx / H_dot * -100
+    return [-t, t]
+
+
 Hx = 10
 H_dots = np.linspace(-10, -200, 20)
 sim_ps = [
@@ -71,7 +76,7 @@ sim_ps = [
             np.empty(3),
             np.empty(3),
             [Vladimirskii(Hx, H_dot)],
-            [-10, 10],
+            sim_time(Hx, H_dot),
             [0, 0, 1],
         ).simulate()
     )
