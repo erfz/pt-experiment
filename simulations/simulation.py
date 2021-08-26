@@ -39,6 +39,11 @@ class Particle:
         )
         Sf = [sol.y[i][-1] for i in range(3)]
 
+        # Reinitialize any reiniting sources...temporary solution?
+        for s in self.sources:
+            if isinstance(s, Reiniting):
+                s.reinit()
+
         # print(f"Number of f evals: {sol.nfev}")
         # print(f"Number of time points: {len(sol.t)}")
 

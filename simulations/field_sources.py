@@ -6,7 +6,7 @@ import numpy as np
 
 def field_tot(r, t, field_sources):
     overriders = [
-        x for x in field_sources if isinstance(x, Overriding) and x.isinside(r)
+        s for s in field_sources if isinstance(s, Overriding) and s.isinside(r)
     ]
     num_overriders = len(overriders)
 
@@ -21,10 +21,10 @@ def field_tot(r, t, field_sources):
         return overriders[0].field(r, t)
     else:
         result = np.zeros(3)
-        for source in field_sources:
-            if isinstance(source, Overriding):
+        for s in field_sources:
+            if isinstance(s, Overriding):
                 continue
-            result += source.field(r, t)
+            result += s.field(r, t)
         return result
 
 
@@ -105,11 +105,19 @@ class Box(Bounded):
 
 class OverridingBox(Box, Overriding):
     def field(self, r, t):
+        # isinside(r) check not needed since Overriding field sources
+        # are only used when inside them
         return self.B(r, t)
 
 
-class Metglas(Overriding):
-    def __init__(self, p, B_sat, rot_vec, sat, cell_dims, cells_per_dim):
+class Reiniting(FieldSource):
+    @abstractmethod
+    def reinit(self):
+        pass
+
+
+class Metglas(Box, Overriding, Reiniting):
+    def __init__(self, p, dims, B_sat, rot_vec, sat, cell_length_range):
         rng = np.random.default_rng()
 
         def generate_domain_field():
@@ -117,35 +125,44 @@ class Metglas(Overriding):
             if not_random:
                 return B_sat
             else:
-                phi = rng.random() * np.pi * 2
-                theta = np.arccos(2 * rng.random() - 1)
-                return np.linalg.norm(B_sat) * np.array(
-                    [
-                        np.cos(phi) * np.sin(theta),
-                        np.sin(phi) * np.sin(theta),
-                        np.cos(theta),
-                    ]
-                )
-                # non uniform mapping alternative
-                # return rotate(B_sat, rot_vec, rng.random() * np.pi * 2)
+                return rotate(B_sat, rot_vec, rng.random() * np.pi * 2)
 
-        self.p = np.array(p)
-        self.cell_dims = np.array(cell_dims)
-        self.cells_per_dim = np.array(cells_per_dim)
+        length_min, length_max = cell_length_range
+        x_min, _, _ = p
+        x_max, _, _ = np.add(p, dims)
 
-        cells = [generate_domain_field() for i in range(np.prod(cells_per_dim))]
-        self.cells = np.reshape(cells, (*cells_per_dim, 3))
+        def generate_cells_fields():
+            extents = [x_min]
 
-    def get_indices(self, r):
-        return tuple(((r - self.p) // self.cell_dims).astype(int))
+            while True:
+                length = rng.random() * (length_max - length_min) + length_min
+                last = extents[-1]
+                new_last = last + length
+                if new_last > x_max:
+                    new_last = x_max
+                extents.append(new_last)
+                if new_last == x_max:
+                    break
 
-    def isinside(self, r):
-        indices = self.get_indices(r)
-        for i, n in zip(indices, self.cells_per_dim):
-            if not (0 <= i <= n - 1):
-                return False
-        return True
+            fields = [generate_domain_field() for i in range(len(extents) - 1)]
+
+            self.extents = np.array(extents)
+            self.fields = np.reshape(fields, (len(extents) - 1, 3))
+
+        self.generate_cells_fields = generate_cells_fields
+        self.generate_cells_fields()
+        self.p = p
+        self.dims = dims
+
+    def reinit(self):
+        self.generate_cells_fields()
 
     def field(self, r, t):
-        indices = self.get_indices(r)
-        return self.cells[indices]
+        x, _, _ = r
+        l = self.extents
+        for (idx, e) in enumerate(l):
+            if idx < len(l) - 1:
+                x1, x2 = e, l[idx + 1]
+                if x1 <= x <= x2:
+                    return self.fields[idx]
+        raise ValueError(f"r[0] = {x} was not within the extents", r, self.extents)
