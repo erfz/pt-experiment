@@ -15,8 +15,8 @@ def theory_vlad_probability(Hx, H_dot):
     return np.exp(-np.pi * Hx * Hx / H_dot * -0.09162) * 100
 
 
-def max_time_step(v_normal, domain_len):
-    return domain_len / v_normal / 2
+def max_time_step(v_normal, min_cell_len):
+    return min_cell_len / v_normal / 2
 
 
 # %%
@@ -121,7 +121,7 @@ plt.legend()
 plt.show()
 
 # %%
-domain_len = 1e-5
+cell_length_range = (min_cell_len := 0.5 * 1e-5, 1.5 * 1e-5)
 B_metglas = 5e8  # corresponds to 5e8 nT = 0.5 T
 vx = 100
 
@@ -131,7 +131,7 @@ metglas = Metglas(
     -B_metglas * y_hat,
     x_hat,
     0.82,
-    (1e-5 * 0.5, 1.5 * 1e-5),
+    cell_length_range,
 )
 
 Sf, ts, spins = Particle(
@@ -140,7 +140,7 @@ Sf, ts, spins = Particle(
     [metglas],
     [-0.00000025, 0.00000125],
     y_hat,
-    max_time_step(vx, domain_len),
+    max_time_step(vx, min_cell_len),
 ).simulate_with_output()
 print(f"Number of t evals: {len(ts)}")
 print(f"Final S (through Metglas): {Sf}")
@@ -150,33 +150,33 @@ plt.ylabel("Spin components")
 plt.legend()
 plt.show()
 
-# shape = "square"
-# Sf = rand_shape_sim(
-#     vx,
-#     0.1,
-#     [metglas],
-#     1000,
-#     [-0.00000025, 0.00000125],
-#     shape,
-#     y_hat,
-#     max_time_step(vx, domain_len),
-# )
-# print(f"Final S (thru Metglas, {shape}): {Sf}")
+shape = "square"
+Sf = rand_shape_sim(
+    vx,
+    0.1,
+    [metglas],
+    50,
+    [-0.00000025, 0.00000125],
+    shape,
+    y_hat,
+    max_time_step(vx, min_cell_len),
+)
+print(f"Final S (thru Metglas, {shape}): {Sf}")
 
 # %%
-domain_len = 1e-5
+cell_length_range = (min_cell_len := 0.5 * 1e-5, 1.5 * 1e-5)
 B_metglas = 5e8  # corresponds to 5e8 nT = 0.5 T
 vx = 100
 
 
 def metglas(sat):
     return Metglas(
-        [0, -0.05, -50],
+        (0, -0.1 / 2, -100 / 2),
+        (1e-4, 0.1, 100),
         -B_metglas * y_hat,
         x_hat,
         sat,
-        [domain_len, domain_len, 100],
-        [10, 10000, 1],
+        cell_length_range,
     )
 
 
@@ -191,7 +191,7 @@ spins_y = [
         [-0.00000025, 0.00000125],
         "square",
         y_hat,
-        max_time_step(vx, domain_len),
+        max_time_step(vx, min_cell_len),
     )[1]
     for sat in sats
 ]
@@ -204,41 +204,38 @@ plt.show()
 # %%
 B_metglas = 5e8  # corresponds to 5e8 nT = 0.5 T
 vx = 100
-metglas_len = 0.0001  # 0.1 mm
-metglas_width = 0.1  # 0.1 m
 
 
-def metglas(num_layers):
-    domain_len = metglas_len / num_layers
+def metglas(cell_length_range):
     return Metglas(
-        [0, -0.05, -50],
+        (0, -0.1 / 2, -100 / 2),
+        (1e-4, 0.1, 100),
         -B_metglas * y_hat,
         x_hat,
-        0.8,
-        [domain_len, domain_len, 100],
-        [num_layers, int(metglas_width / domain_len), 1],
+        0.82,
+        cell_length_range,
     )
 
 
-Ns = [1, 2, 5, 8, 10, 12, 15, 20]
+ranges = [(1 * 1e-4 / N, 1 * 1e-4 / N) for N in [1, 2, 5, 8, 10, 12, 15, 20]]
 
 spins_y = [
     rand_shape_sim(
         vx,
         0.1,
-        [metglas(N)],
+        [metglas(r)],
         1000,
         [-0.00000025, 0.00000125],
         "square",
         y_hat,
-        max_time_step(vx, metglas_len / N),
+        max_time_step(vx, r[0]),
     )[1]
-    for N in Ns
+    for r in ranges
 ]
 
 print(spins_y)
 
-plt.scatter(Ns, spins_y)
+plt.scatter(range(len(ranges)), spins_y)
 plt.xlabel("Number of domains passed thru per particle")
 plt.ylabel("S_y")
 plt.show()
