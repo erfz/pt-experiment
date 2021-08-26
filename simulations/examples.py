@@ -19,6 +19,17 @@ def max_time_step(v_normal, min_cell_len):
     return min_cell_len / v_normal / 2
 
 
+def generate_metglas(sat, cell_length_range):
+    return Metglas(
+        (0, -0.1 / 2, -100 / 2),
+        (1e-4, 0.1, 100),
+        -5.0e8 * y_hat,
+        x_hat,
+        sat,
+        cell_length_range,
+    )
+
+
 # %%
 Sf, ts, spins = Particle(
     [1000, 0, 0],
@@ -121,23 +132,10 @@ plt.legend()
 plt.show()
 
 # %%
-cell_length_range = (min_cell_len := 0.5 * 1e-5, 1.5 * 1e-5)
-B_metglas = 5e8  # corresponds to 5e8 nT = 0.5 T
-vx = 100
-
-metglas = Metglas(
-    (0, -0.1 / 2, -100 / 2),
-    (1e-4, 0.1, 100),
-    -B_metglas * y_hat,
-    x_hat,
-    0.82,
-    cell_length_range,
-)
-
 Sf, ts, spins = Particle(
-    [vx, 0, 0],
+    [vx := 100, 0, 0],
     [0, 0, 0],
-    [metglas],
+    [generate_metglas(0.82, (min_cell_len := 0.5 * 1e-5, 1.5 * 1e-5))],
     [-0.00000025, 0.00000125],
     y_hat,
     max_time_step(vx, min_cell_len),
@@ -150,11 +148,12 @@ plt.ylabel("Spin components")
 plt.legend()
 plt.show()
 
+# %%
 shape = "square"
 Sf = rand_shape_sim(
-    vx,
+    vx := 100,
     0.1,
-    [metglas],
+    [generate_metglas(0.82, (min_cell_len := 0.5 * 1e-5, 1.5 * 1e-5))],
     50,
     [-0.00000025, 0.00000125],
     shape,
@@ -164,29 +163,13 @@ Sf = rand_shape_sim(
 print(f"Final S (thru Metglas, {shape}): {Sf}")
 
 # %%
-cell_length_range = (min_cell_len := 0.5 * 1e-5, 1.5 * 1e-5)
-B_metglas = 5e8  # corresponds to 5e8 nT = 0.5 T
-vx = 100
-
-
-def metglas(sat):
-    return Metglas(
-        (0, -0.1 / 2, -100 / 2),
-        (1e-4, 0.1, 100),
-        -B_metglas * y_hat,
-        x_hat,
-        sat,
-        cell_length_range,
-    )
-
-
 sats = [0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.98, 1]
 
 spins_y = [
     rand_shape_sim(
-        vx,
+        vx := 100,
         0.1,
-        [metglas(sat)],
+        [generate_metglas(sat, (min_cell_len := 0.5 * 1e-5, 1.5 * 1e-5))],
         1000,
         [-0.00000025, 0.00000125],
         "square",
@@ -202,28 +185,13 @@ plt.ylabel("S_y")
 plt.show()
 
 # %%
-B_metglas = 5e8  # corresponds to 5e8 nT = 0.5 T
-vx = 100
-
-
-def metglas(cell_length_range):
-    return Metglas(
-        (0, -0.1 / 2, -100 / 2),
-        (1e-4, 0.1, 100),
-        -B_metglas * y_hat,
-        x_hat,
-        0.82,
-        cell_length_range,
-    )
-
-
-ranges = [(1 * 1e-4 / N, 1 * 1e-4 / N) for N in [1, 2, 5, 8, 10, 12, 15, 20]]
+ranges = [(0.5 * 1e-4 / N, 1.5 * 1e-4 / N) for N in [1, 2, 5, 8, 10, 12, 15, 20]]
 
 spins_y = [
     rand_shape_sim(
-        vx,
+        vx := 100,
         0.1,
-        [metglas(r)],
+        [generate_metglas(0.82, r)],
         1000,
         [-0.00000025, 0.00000125],
         "square",
