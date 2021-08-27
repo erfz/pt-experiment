@@ -185,7 +185,8 @@ plt.ylabel("S_y")
 plt.show()
 
 # %%
-ranges = [(0.5 * 1e-4 / N, 1.5 * 1e-4 / N) for N in [1, 2, 5, 8, 10, 12, 15, 20]]
+Ns = [1, 2, 5, 8, 10, 12, 15, 20]
+ranges = [np.multiply(1e-4 / N, (0.5, 1.5)) for N in Ns]
 
 spins_y = [
     rand_shape_sim(
@@ -201,11 +202,10 @@ spins_y = [
     for r in ranges
 ]
 
-print(spins_y)
-
-plt.scatter(range(len(ranges)), spins_y)
+plt.scatter(Ns, spins_y)
 plt.xlabel("Number of domains passed thru per particle")
 plt.ylabel("S_y")
+plt.xticks(range(min(Ns), max(Ns) + 1))
 plt.show()
 
 # %%
