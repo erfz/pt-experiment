@@ -186,7 +186,7 @@ plt.show()
 
 # %%
 Ns = [1, 2, 5, 8, 10, 12, 15, 20]
-ranges = [np.multiply(1e-4 / N, (0.5, 1.5)) for N in Ns]
+ranges = [np.multiply(1e-4 / N, mult := (0.5, 1.5)) for N in Ns]
 
 spins_y = [
     rand_shape_sim(
@@ -203,7 +203,7 @@ spins_y = [
 ]
 
 plt.scatter(Ns, spins_y)
-plt.xlabel("Number of domains passed thru per particle")
+plt.xlabel(f"Number of domains passed thru per particle [multiplier = {mult}]")
 plt.ylabel("S_y")
 plt.xticks(range(min(Ns), max(Ns) + 1))
 plt.show()
