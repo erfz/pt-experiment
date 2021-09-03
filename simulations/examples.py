@@ -19,11 +19,11 @@ def max_time_step(v_normal, min_cell_len):
     return min_cell_len / v_normal / 2
 
 
-def generate_metglas(sat, cell_length_range):
+def generate_metglas(sat, cell_length_range, B, thickness):
     return Metglas(
         (0, -0.1 / 2, -100 / 2),
-        (1e-4, 0.1, 100),
-        -5.0e8 * y_hat,
+        (thickness, 0.1, 100),
+        -B * 1.0e9 * y_hat,
         x_hat,
         sat,
         cell_length_range,
@@ -135,14 +135,28 @@ plt.show()
 Sf, ts, spins = Particle(
     [vx := 100, 0, 0],
     [0, 0, 0],
-    [generate_metglas(0.82, (min_cell_len := 0.5 * 1e-5, 1.5 * 1e-5))],
+    [
+        generate_metglas(
+            sat := 0.82,
+            domain_thickness := (0.5 * 1e-5, 1.5 * 1e-5),
+            B := 0.5,
+            thickness := 1e-4,
+        )
+    ],
     [-0.00000025, 0.00000125],
     y_hat,
-    max_time_step(vx, min_cell_len),
+    max_time_step(vx, domain_thickness[0]),
 ).simulate_with_output()
 print(f"Number of t evals: {len(ts)}")
 print(f"Final S (through Metglas): {Sf}")
 plt.plot(ts, list(zip(*spins)), label=("S_x", "S_y", "S_z"))
+plt.title(
+    f"""Particle passing thru Metglas:
+    Saturation = {sat}
+    Total thickness = {thickness} m
+    Domain thickness = {tuple((round(x, 10) for x in domain_thickness))} m
+    Field strength = {B} T"""
+)
 plt.xlabel("Time (s)")
 plt.ylabel("Spin components")
 plt.legend()
@@ -153,12 +167,12 @@ shape = "square"
 Sf = rand_shape_sim(
     vx := 100,
     0.1,
-    [generate_metglas(0.82, (min_cell_len := 0.5 * 1e-5, 1.5 * 1e-5))],
+    [generate_metglas(0.82, domain_thickness := (0.5 * 1e-5, 1.5 * 1e-5), 0.5, 1e-4)],
     50,
     [-0.00000025, 0.00000125],
     shape,
     y_hat,
-    max_time_step(vx, min_cell_len),
+    max_time_step(vx, domain_thickness[0]),
 )
 print(f"Final S (thru Metglas, {shape}): {Sf}")
 
@@ -169,17 +183,30 @@ spins_y = [
     rand_shape_sim(
         vx := 100,
         0.1,
-        [generate_metglas(sat, (min_cell_len := 0.5 * 1e-5, 1.5 * 1e-5))],
+        [
+            generate_metglas(
+                sat,
+                domain_thickness := (0.5 * 1e-5, 1.5 * 1e-5),
+                B := 0.5,
+                thickness := 1e-4,
+            )
+        ],
         1000,
         [-0.00000025, 0.00000125],
         "square",
         y_hat,
-        max_time_step(vx, min_cell_len),
+        max_time_step(vx, domain_thickness[0]),
     )[1]
     for sat in sats
 ]
 
 plt.scatter(sats, spins_y)
+plt.title(
+    f"""Polarization vs Saturation:
+    Total thickness = {thickness} m
+    Domain thickness = {tuple((round(x, 10) for x in domain_thickness))} m
+    Field strength = {B} T"""
+)
 plt.xlabel("Saturation")
 plt.ylabel("S_y")
 plt.show()
@@ -192,7 +219,7 @@ spins_y = [
     rand_shape_sim(
         vx := 100,
         0.1,
-        [generate_metglas(0.82, r)],
+        [generate_metglas(sat := 0.82, r, B := 0.5, thickness := 1e-4)],
         1000,
         [-0.00000025, 0.00000125],
         "square",
@@ -203,6 +230,12 @@ spins_y = [
 ]
 
 plt.scatter(Ns, spins_y)
+plt.title(
+    f"""Polarization vs Domain Thickness:
+    Saturation = {sat}
+    Total thickness = {thickness} m
+    Field strength = {B} T"""
+)
 plt.xlabel(f"Number of domains passed thru per particle [multiplier = {mult}]")
 plt.ylabel("S_y")
 plt.xticks(range(min(Ns), max(Ns) + 1))
