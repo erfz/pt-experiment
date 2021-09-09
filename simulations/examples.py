@@ -188,12 +188,12 @@ spins_y = [
             [
                 generate_metglas(
                     sat,
-                    domain_thickness := (4 * 1e-6, 6 * 1e-6),
+                    domain_thickness := (4e-6, 6e-6),
                     B,
                     thickness := 25e-6,
                 )
             ],
-            1000,
+            500,
             [-0.00000005, 0.0000003],
             "square",
             y_hat,
@@ -218,33 +218,41 @@ plt.legend()
 plt.show()
 
 # %%
-Ns = [1, 2, 5, 8, 10, 12, 15, 20]
-ranges = [np.multiply(1e-4 / N, mult := (0.5, 1.5)) for N in Ns]
+bases = [3e-6, 6e-6, 8e-6, 10e-6, 12e-6]
+offset = 2e-6
 
 spins_y = [
     rand_shape_sim(
         vx := 100,
         0.1,
-        [generate_metglas(sat := 0.82, r, B := 0.5, thickness := 1e-4)],
-        1000,
-        [-0.00000025, 0.00000125],
+        [
+            generate_metglas(
+                sat := 0.82,
+                domain_thickness := (base - offset, base + offset),
+                B := 0.5,
+                thickness := 25e-6,
+            )
+        ],
+        500,
+        [-0.00000005, 0.0000003],
         "square",
         y_hat,
-        max_time_step(vx, r[0]),
+        max_time_step(vx, domain_thickness[0]),
     )[1]
-    for r in ranges
+    for base in bases
 ]
 
-plt.scatter(Ns, spins_y)
+plt.plot(bases, spins_y)
 plt.title(
-    f"""Polarization vs Domain Thickness:
+    f"""Polarization vs Base Domain Thickness:
+    Base thickness offset = {offset}
     Saturation = {sat}
     Total thickness = {thickness} m
+    Speed = {vx} m/s
     Field strength = {B} T"""
 )
-plt.xlabel(f"Number of domains passed thru per particle [multiplier = {mult}]")
+plt.xlabel(f"Base domain thickness (range = base +/- offset)")
 plt.ylabel("S_y")
-plt.xticks(range(min(Ns), max(Ns) + 1))
 plt.show()
 
 # %%

@@ -22,12 +22,11 @@ pdg monte carlo (accept reject, inverse transform distribution)
 two wires field diagram
 put between
 
-knock thickness 25 microns, 4-6 microns
-3-5 micron in paper?
-sat curve for diff fields
+knock thickness 25 microns, 4-6 microns*
+sat curve for diff fields*
 fishy for N=1
-label things better
+label things better*
 save run data
 plot vs avg # domains passed thru
-weird behavior small fields (osc period)
-2pi/w, w -- gyromag
+weird behavior small fields (osc period)*
+2pi/w, w -- gyromag*
