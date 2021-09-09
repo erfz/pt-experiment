@@ -178,38 +178,43 @@ print(f"Final S (thru Metglas, {shape}): {Sf}")
 
 # %%
 sats = [0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.98, 1]
+Bs = [0.3, 0.5, 0.7]
 
 spins_y = [
-    rand_shape_sim(
-        vx := 100,
-        0.1,
-        [
-            generate_metglas(
-                sat,
-                domain_thickness := (0.4 * 1e-5, 0.6 * 1e-5),
-                B := 0.5,
-                thickness := 2.5e-5,
-            )
-        ],
-        1000,
-        [-0.00000005, 0.0000003],
-        "square",
-        y_hat,
-        max_time_step(vx, domain_thickness[0]),
-    )[1]
-    for sat in sats
+    [
+        rand_shape_sim(
+            vx := 100,
+            0.1,
+            [
+                generate_metglas(
+                    sat,
+                    domain_thickness := (4 * 1e-6, 6 * 1e-6),
+                    B,
+                    thickness := 25e-6,
+                )
+            ],
+            1000,
+            [-0.00000005, 0.0000003],
+            "square",
+            y_hat,
+            max_time_step(vx, domain_thickness[0]),
+        )[1]
+        for sat in sats
+    ]
+    for B in Bs
 ]
 
-plt.scatter(sats, spins_y)
+plt.plot(sats, list(zip(*spins_y)), label=[f"{B} T" for B in Bs])
 plt.title(
     f"""Polarization vs Saturation:
     Speed = {vx} m/s
     Total thickness = {thickness} m
     Domain thickness = {tuple((round(x, 10) for x in domain_thickness))} m
-    Field strength = {B} T"""
+    """
 )
 plt.xlabel("Saturation")
 plt.ylabel("S_y")
+plt.legend()
 plt.show()
 
 # %%
