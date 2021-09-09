@@ -1,0 +1,19 @@
+Hx = 10 mT
+Hdot = 0.1 MT/s
+v = 100 m/s
+start far enough to Hz much big Hx
+how far to get good answer
+
+montecarlo in between
+
+start spins with B
+
+w = mu Hx / h
+->
+sqrt(mu0 / 4pi) mu sqrt(4pi mu0) Hx / h
+= mu0 mu Hx / h
+= mu Bx / h
+
+a = mu Hdot / h
+->
+mu Bdot / h

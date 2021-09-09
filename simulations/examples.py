@@ -186,13 +186,13 @@ spins_y = [
         [
             generate_metglas(
                 sat,
-                domain_thickness := (0.5 * 1e-5, 1.5 * 1e-5),
+                domain_thickness := (0.4 * 1e-5, 0.6 * 1e-5),
                 B := 0.5,
-                thickness := 1e-4,
+                thickness := 2.5e-5,
             )
         ],
         1000,
-        [-0.00000025, 0.00000125],
+        [-0.00000005, 0.0000003],
         "square",
         y_hat,
         max_time_step(vx, domain_thickness[0]),
@@ -203,6 +203,7 @@ spins_y = [
 plt.scatter(sats, spins_y)
 plt.title(
     f"""Polarization vs Saturation:
+    Speed = {vx} m/s
     Total thickness = {thickness} m
     Domain thickness = {tuple((round(x, 10) for x in domain_thickness))} m
     Field strength = {B} T"""

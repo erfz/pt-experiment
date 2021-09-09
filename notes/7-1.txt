@@ -1,0 +1,23 @@
+implement wire diameter field
+1/2 mm diameter
+angled wires?
+5 in hole
+1.5 in between wires
+
+B0 = 30 milligauss
+curr sheet = mag field 0 inside Pb sc (1/32'')
+
+read up ferromagnetism
+saturated = basically same dir B
+not likely up or down
+plane perp vertical
+80% saturation
+
+I = 0.1 T
+v = 500 m/s
+d = 5 cm
+
+renormalize each step?
+play with tolerances
+
+draw a diagram

@@ -1,0 +1,33 @@
+polarization vs domain size
+polarization vs saturation
+polarization vs speed/freq
+emailed pdf
+440 m/s (8.9 ang)
+look up domain sizes?
+2826mb (low cobalt)
+oscillation results + plots for presentation
+
+why doing it*
+sim based on*
+geometry*
+challenging questions (metglas hard)*
+what trying to do, getting close*
+
+generate seed myself
+vs # domains at like 0.95 sat
+try other # of samples
+average angle between y dir and domain field
+pdg monte carlo (accept reject, inverse transform distribution)
+
+two wires field diagram
+put between
+
+knock thickness 25 microns, 4-6 microns
+3-5 micron in paper?
+sat curve for diff fields
+fishy for N=1
+label things better
+save run data
+plot vs avg # domains passed thru
+weird behavior small fields (osc period)
+2pi/w, w -- gyromag

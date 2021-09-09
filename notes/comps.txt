@@ -1,0 +1,13 @@
+# incoming_region = OverridingBox(
+#     [-100, -50, -50], [100, 100, 100], lambda r, t: B0 * y_hat
+# )
+# superconductor = OverridingBox(
+#     [0, -50, -50], [8e-4, 100, 100], lambda r, t: np.zeros(3)
+# )
+# between_sc_metglas = OverridingBox(
+#     [8e-4, -50, -50], [100, 100, 100], lambda r, t: -B0 / 1000 * y_hat
+# )
+# outging_region = OverridingBox(
+#     [205, -50, -50], [100, 100, 100], lambda r, t: -B0 / 1000 * y_hat
+# )
+B0 = 3000  # corresponds to 3000 nT = 3 microtesla
