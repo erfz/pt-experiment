@@ -137,13 +137,13 @@ Sf, ts, spins = Particle(
     [0, 0, 0],
     [
         generate_metglas(
-            sat := 0.82,
-            domain_thickness := (0.5 * 1e-5, 1.5 * 1e-5),
-            B := 0.5,
-            thickness := 1e-4,
+            sat := 0.01,
+            domain_thickness := (4e-6, 6e-6),
+            B := 0.01,
+            thickness := 25e-6,
         )
     ],
-    [-0.00000025, 0.00000125],
+    [-0.00000005, 0.0000003],
     y_hat,
     max_time_step(vx, domain_thickness[0]),
 ).simulate_with_output()
@@ -177,8 +177,25 @@ Sf = rand_shape_sim(
 print(f"Final S (thru Metglas, {shape}): {Sf}")
 
 # %%
-sats = [0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.98, 1]
-Bs = [0.3, 0.5, 0.7]
+sats = [
+    0.01,
+    0.05,
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5,
+    0.6,
+    0.7,
+    0.75,
+    0.8,
+    0.85,
+    0.9,
+    0.95,
+    0.98,
+    1,
+]
+Bs = [0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 0.8, 1.0, 1.5]
 
 spins_y = [
     [
