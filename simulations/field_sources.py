@@ -111,13 +111,13 @@ class OverridingBox(Box, Overriding):
         return self.B(r, t)
 
 
-class Reiniting(FieldSource):
+class GenerateEachRun(FieldSource):
     @abstractmethod
-    def reinit(self):
+    def generate(self):
         pass
 
 
-class Metglas(Box, Overriding, Reiniting):
+class Metglas(Box, Overriding, GenerateEachRun):
     def __init__(self, p, dims, B_sat, rot_vec, sat, cell_length_range):
         self.p = p
         self.dims = dims
@@ -156,7 +156,7 @@ class Metglas(Box, Overriding, Reiniting):
 
         self.generate_cells_fields = generate_cells_fields
 
-    def reinit(self):
+    def generate(self):
         self.generate_cells_fields()
 
     def field(self, r, t):

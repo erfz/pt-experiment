@@ -28,10 +28,10 @@ class Particle:
         return np.cross(c * S, field_tot(self.r(t), t, self.sources))
 
     def simulate_with_output(self):
-        # Reinitialize any reiniting sources...temporary solution?
+        # Generate any GenerateEachRun sources...temporary solution?
         for s in self.sources:
-            if isinstance(s, Reiniting):
-                s.reinit()
+            if isinstance(s, GenerateEachRun):
+                s.generate()
 
         rtol, atol = (1e-8, 1e-8)
         sol = solve_ivp(
@@ -92,7 +92,7 @@ def rand_shape_sim(
             [vx, 0, 0], [0, y, z], oriented_sources, t_bounds, S0, max_step
         ).simulate()
 
-    rand_Sf = Parallel(n_jobs=8)(delayed(f)(y, z) for y, z in shape_points)
+    rand_Sf = Parallel(n_jobs=-1)(delayed(f)(y, z) for y, z in shape_points)
 
     # average over all final spin vectors
     return np.average(rand_Sf, axis=0)
