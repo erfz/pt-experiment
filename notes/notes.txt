@@ -35,3 +35,6 @@ go down to lower sats in curve (closer to 0)
 multiply velocities (weird, 100, 117, ...)
 2-6 domain
 go down to 0.1, 0.01 sat in x axis
+
+400, 129 m/s
+2-6 microns
