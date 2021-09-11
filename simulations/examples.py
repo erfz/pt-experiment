@@ -1,7 +1,8 @@
 # %%
-from simulation import *
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
+from simulation import *
 
 x_hat = np.array([1.0, 0, 0])
 y_hat = np.array([0, 1.0, 0])

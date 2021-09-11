@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from math_helpers import rotate
 
 import numpy as np
+
+from math_helpers import rotate
 
 
 def field_tot(r, t, field_sources):
@@ -118,20 +119,17 @@ class Reiniting(FieldSource):
 
 class Metglas(Box, Overriding, Reiniting):
     def __init__(self, p, dims, B_sat, rot_vec, sat, cell_length_range):
-        rng = np.random.default_rng()
-
-        def generate_domain_field():
-            not_random = rng.choice([True, False], p=[sat, 1 - sat])
-            if not_random:
-                return B_sat
-            else:
-                return rotate(B_sat, rot_vec, rng.random() * np.pi * 2)
+        self.p = p
+        self.dims = dims
+        self.extents = None
+        self.fields = None
 
         length_min, length_max = cell_length_range
         x_min, _, _ = p
         x_max, _, _ = np.add(p, dims)
 
         def generate_cells_fields():
+            rng = np.random.default_rng()
             extents = [x_min]
 
             while True:
@@ -144,15 +142,19 @@ class Metglas(Box, Overriding, Reiniting):
                 if new_last == x_max:
                     break
 
-            fields = [generate_domain_field() for i in range(len(extents) - 1)]
+            def generate_domain_field():
+                not_random = rng.choice([True, False], p=[sat, 1 - sat])
+                if not_random:
+                    return B_sat
+                else:
+                    return rotate(B_sat, rot_vec, rng.random() * np.pi * 2)
+
+            fields = [generate_domain_field() for _ in range(len(extents) - 1)]
 
             self.extents = np.array(extents)
             self.fields = np.reshape(fields, (len(extents) - 1, 3))
 
         self.generate_cells_fields = generate_cells_fields
-        self.generate_cells_fields()
-        self.p = p
-        self.dims = dims
 
     def reinit(self):
         self.generate_cells_fields()

@@ -1,4 +1,5 @@
 import numpy as np
+from joblib import Parallel, delayed
 from scipy.integrate import solve_ivp
 
 from field_sources import *
@@ -27,6 +28,11 @@ class Particle:
         return np.cross(c * S, field_tot(self.r(t), t, self.sources))
 
     def simulate_with_output(self):
+        # Reinitialize any reiniting sources...temporary solution?
+        for s in self.sources:
+            if isinstance(s, Reiniting):
+                s.reinit()
+
         rtol, atol = (1e-8, 1e-8)
         sol = solve_ivp(
             self.f,
@@ -38,11 +44,6 @@ class Particle:
             max_step=self.max_step,
         )
         Sf = [sol.y[i][-1] for i in range(3)]
-
-        # Reinitialize any reiniting sources...temporary solution?
-        for s in self.sources:
-            if isinstance(s, Reiniting):
-                s.reinit()
 
         # print(f"Number of f evals: {sol.nfev}")
         # print(f"Number of time points: {len(sol.t)}")
@@ -86,11 +87,12 @@ def rand_shape_sim(
     else:
         raise ValueError(f"'{shape}' is not a valid [shape] argument")
 
-    rand_Sf = [
-        Particle(
+    def f(y, z):
+        return Particle(
             [vx, 0, 0], [0, y, z], oriented_sources, t_bounds, S0, max_step
         ).simulate()
-        for y, z in shape_points
-    ]
+
+    rand_Sf = Parallel(n_jobs=8)(delayed(f)(y, z) for y, z in shape_points)
+
     # average over all final spin vectors
     return np.average(rand_Sf, axis=0)
