@@ -38,3 +38,8 @@ go down to 0.1, 0.01 sat in x axis
 
 400, 129 m/s
 2-6 microns
+
+true velocity = gaussian(444.5 m/s, 1% sigma)
+thickness = 29.2 microns
+4-6, 5-25, 5-15 microns
+write up: where started, things in between
