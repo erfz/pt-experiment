@@ -201,18 +201,18 @@ Bs = [0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 0.8, 1.0, 1.5]
 spins_y = [
     [
         rand_shape_sim(
-            vx := 100,
+            vx := 444.5,
             0.1,
             [
                 generate_metglas(
                     sat,
                     domain_thickness := (4e-6, 6e-6),
                     B,
-                    thickness := 25e-6,
+                    thickness := 29.2e-6,
                 )
             ],
             1000,
-            [-0.00000005, 0.0000003],
+            [-0.00000001, 0.00000008],
             "square",
             y_hat,
             max_time_step(vx, domain_thickness[0]),
