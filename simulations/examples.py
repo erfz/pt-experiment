@@ -64,13 +64,13 @@ plt.show()
 # %%
 shape = "line"
 Sf = rand_shape_sim(
-    1000, 10, generate_two_wires(10, (10, 0), (-10, 0)), 100, [-100, 100], shape
+    lambda: 1000, 10, generate_two_wires(10, (10, 0), (-10, 0)), 100, [-100, 100], shape
 )
 print(f"Final S ({shape}): {Sf}")
 
 shape = "square"
 Sf = rand_shape_sim(
-    1000, 10, generate_two_wires(10, (10, 0), (-10, 0)), 100, [-100, 100], shape
+    lambda: 1000, 10, generate_two_wires(10, (10, 0), (-10, 0)), 100, [-100, 100], shape
 )
 print(f"Final S ({shape}): {Sf}")
 
@@ -165,8 +165,10 @@ plt.show()
 
 # %%
 shape = "square"
+vx = 100
+
 Sf = rand_shape_sim(
-    vx := 100,
+    lambda: vx,
     0.1,
     [generate_metglas(0.82, domain_thickness := (0.5 * 1e-5, 1.5 * 1e-5), 0.5, 1e-4)],
     50,
@@ -198,10 +200,13 @@ sats = [
 ]
 Bs = [0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 0.8, 1.0, 1.5]
 
+mu = 444.5
+sigma = mu / 100
+
 spins_y = [
     [
         rand_shape_sim(
-            vx := 444.5,
+            lambda: np.random.default_rng().normal(mu, sigma),
             0.1,
             [
                 generate_metglas(
@@ -215,7 +220,7 @@ spins_y = [
             [-0.00000001, 0.00000008],
             "square",
             y_hat,
-            max_time_step(vx, domain_thickness[0]),
+            max_time_step(mu, domain_thickness[0]),
         )[1]
         for sat in sats
     ]
@@ -225,7 +230,7 @@ spins_y = [
 plt.plot(sats, list(zip(*spins_y)), label=[f"{B} T" for B in Bs])
 plt.title(
     f"""Polarization vs Saturation:
-    Speed = {vx} m/s
+    Speed ~ N({mu}, {round(sigma * sigma, 10)}) m/s
     Total thickness = {thickness} m
     Domain thickness = {tuple((round(x, 10) for x in domain_thickness))} m
     """
@@ -238,10 +243,11 @@ plt.show()
 # %%
 bases = [3e-6, 6e-6, 8e-6, 10e-6, 12e-6]
 offset = 2e-6
+vx = 100
 
 spins_y = [
     rand_shape_sim(
-        vx := 100,
+        lambda: vx,
         0.1,
         [
             generate_metglas(

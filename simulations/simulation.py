@@ -76,7 +76,7 @@ def generate_two_wires(d, w1, w2):
 
 
 def rand_shape_sim(
-    vx, d, oriented_sources, N, t_bounds, shape, S0=None, max_step=np.inf
+    vx_gen, d, oriented_sources, N, t_bounds, shape, S0=None, max_step=np.inf
 ):
     if shape == "line":
         shape_points = ((y, 0) for y in rand_line(N, -d / 2, d))
@@ -89,7 +89,7 @@ def rand_shape_sim(
 
     def f(y, z):
         return Particle(
-            [vx, 0, 0], [0, y, z], oriented_sources, t_bounds, S0, max_step
+            [vx_gen(), 0, 0], [0, y, z], oriented_sources, t_bounds, S0, max_step
         ).simulate()
 
     rand_Sf = Parallel(n_jobs=-1)(delayed(f)(y, z) for y, z in shape_points)
