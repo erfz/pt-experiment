@@ -12,6 +12,21 @@ def normed(v):
     return v / np.linalg.norm(v)
 
 
+def angle_between(v1, v2):
+    """Returns the angle in radians between vectors 'v1' and 'v2'::
+
+    >>> angle_between((1, 0, 0), (0, 1, 0))
+    1.5707963267948966
+    >>> angle_between((1, 0, 0), (1, 0, 0))
+    0.0
+    >>> angle_between((1, 0, 0), (-1, 0, 0))
+    3.141592653589793
+    """
+    v1_u = normed(v1)
+    v2_u = normed(v2)
+    return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
+
+
 def rand_line(n, c, l):
     rng = np.random.default_rng()
     return rng.random(n) * l + c
