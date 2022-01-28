@@ -96,3 +96,28 @@ def rand_shape_sim(
 
     # average over all final spin vectors
     return np.average(rand_Sf, axis=0)
+
+
+def sim_avg_rot(
+    vx_gen, d, oriented_sources, N, t_bounds, shape, S0=None, max_step=np.inf
+):
+    if shape == "line":
+        shape_points = ((y, 0) for y in rand_line(N, -d / 2, d))
+    elif shape == "square":
+        shape_points = rand_square(N, (-d / 2, 0), d)
+    elif shape == "circle":
+        shape_points = rand_cluster(N, (0, 0), d / 2)
+    else:
+        raise ValueError(f"'{shape}' is not a valid [shape] argument")
+
+    def f(y, z):
+        _, ts, spins = Particle(
+            [vx_gen(), 0, 0], [0, y, z], oriented_sources, t_bounds, S0, max_step
+        ).simulate_with_output()
+        pairwise_rots = [
+            angle_between(spins[i], spins[i + 1]) for i in range(len(spins) - 1)
+        ]
+        return np.sum(pairwise_rots) / (ts[-1] - ts[0])
+
+    rots = Parallel(n_jobs=-1)(delayed(f)(y, z) for y, z in shape_points)
+    return np.average(rots)

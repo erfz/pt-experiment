@@ -12,6 +12,7 @@ def normed(v):
     return v / np.linalg.norm(v)
 
 
+# Source: https://stackoverflow.com/a/13849249
 def angle_between(v1, v2):
     """Returns the angle in radians between vectors 'v1' and 'v2'::
 

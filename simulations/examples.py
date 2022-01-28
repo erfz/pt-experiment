@@ -34,8 +34,8 @@ def generate_metglas(sat, cell_length_range, B, thickness):
 # %%
 Sf, ts, spins = Particle(
     [1000, 0, 0],
-    np.zeros(3),
-    generate_two_wires(10, (10, 0), (-10, 0)),
+    [0, 2.5, 0],
+    generate_two_wires(10, (10, 0), (10, 0)),
     [-100, 100],
     [0, 1, 0],
 ).simulate_with_output()
@@ -101,6 +101,7 @@ plt.plot(H_dots, sim_ps, label="Simulated")
 plt.plot(H_dots, vlad_ps, label="Vladimirskii prediction")
 plt.xlabel("H_dot (nT/s)")
 plt.ylabel("Probability of non-adiabatic realignment")
+plt.title("Vladimirskii field, theory vs simulation at Hx = 10 nT")
 plt.legend()
 plt.show()
 
@@ -120,8 +121,8 @@ plt.show()
 
 # %%
 Sf, ts, spins = Particle(
-    [100, 0, 0],
-    [0, 4.5 / 100, 0],
+    [5, 0, 0],
+    [0, 2 / 100, 0],
     generate_two_wires(5 / 100, (0.3, 0), (0.3, 0)),
     [-100, 100],
 ).simulate_with_output()
@@ -134,17 +135,17 @@ plt.show()
 
 # %%
 Sf, ts, spins = Particle(
-    [vx := 100, 0, 0],
+    [vx := 444.5, 0, 0],
     [0, 0, 0],
     [
         generate_metglas(
-            sat := 0.01,
+            sat := 0.38,
             domain_thickness := (4e-6, 6e-6),
-            B := 0.01,
-            thickness := 25e-6,
+            B := 0.5,
+            thickness := 29.2e-6,
         )
     ],
-    [-0.00000005, 0.0000003],
+    [-0.00000001, 0.00000008],
     y_hat,
     max_time_step(vx, domain_thickness[0]),
 ).simulate_with_output()
@@ -153,7 +154,7 @@ print(f"Final S (through Metglas): {Sf}")
 plt.plot(ts, list(zip(*spins)), label=("S_x", "S_y", "S_z"))
 plt.title(
     f"""Particle passing thru Metglas:
-    Saturation = {sat}
+    Saturation fraction = {sat}
     Total thickness = {thickness} m
     Domain thickness = {tuple((round(x, 10) for x in domain_thickness))} m
     Field strength = {B} T"""
@@ -211,7 +212,7 @@ spins_y = [
             [
                 generate_metglas(
                     sat,
-                    domain_thickness := (4e-6, 6e-6),
+                    domain_thickness := (14e-6, 16e-6),
                     B,
                     thickness := 29.2e-6,
                 )
@@ -277,6 +278,69 @@ plt.title(
 )
 plt.xlabel(f"Base domain thickness (range = base +/- offset)")
 plt.ylabel("S_y")
+plt.show()
+
+# %%
+sats = [
+    0.01,
+    0.05,
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5,
+    0.6,
+    0.7,
+    0.75,
+    0.8,
+    0.85,
+    0.9,
+    0.95,
+    0.98,
+    1,
+]
+# Bs = [0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 0.8, 1.0, 1.5]
+Bs = [0.38]
+
+mu = 444.5
+sigma = mu / 100
+
+spins_y = [
+    [
+        sim_avg_rot(
+            lambda: np.random.default_rng().normal(mu, sigma),
+            0.1,
+            [
+                generate_metglas(
+                    sat,
+                    domain_thickness := (14e-6, 16e-6),
+                    B,
+                    thickness := 29.2e-6,
+                )
+            ],
+            1000,
+            [-0.00000001, 0.00000008],
+            "square",
+            y_hat,
+            max_time_step(mu, domain_thickness[0]),
+        )
+        for sat in sats
+    ]
+    for B in Bs
+]
+print(spins_y)
+
+plt.plot(sats, list(zip(*spins_y)), label=[f"{B} T" for B in Bs])
+plt.title(
+    f"""Polarization vs Saturation:
+    Speed ~ N({mu}, {round(sigma * sigma, 10)}) m/s
+    Total thickness = {thickness} m
+    Domain thickness = {tuple((round(x, 10) for x in domain_thickness))} m
+    """
+)
+plt.xlabel("Saturation")
+plt.ylabel("S_y")
+plt.legend()
 plt.show()
 
 # %%

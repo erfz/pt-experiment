@@ -1,0 +1,6 @@
+15 +/- 20% = (12, 18)
+short note documenting things
+	refs to papers
+	mini paper
+	how sim/geometry/results
+10,000 particles
