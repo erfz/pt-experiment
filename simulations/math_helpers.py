@@ -59,6 +59,10 @@ def rotate(v, rot_vec, theta):
     return rot.apply(v)
 
 
+def perp(x, y):
+    return x - y * np.dot(x, y) / np.dot(y, y)
+
+
 # clst = rand_cluster(10000, (0, 0), 1)
 # x, y = zip(*clst)
 # ax = plt.figure().add_subplot(projection='3d')

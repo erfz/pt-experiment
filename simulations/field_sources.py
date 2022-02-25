@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from math_helpers import rotate
+from math_helpers import rotate, perp
 
 
 def field_tot(r, t, field_sources):
@@ -168,3 +168,14 @@ class Metglas(Box, Overriding, GenerateEachRun):
                 if x1 <= x <= x2:
                     return self.fields[idx]
         raise ValueError(f"r[0] = {x} was not within the extents", r, self.extents)
+
+    def result(self, S, v):
+        c = 1  # set later
+        dts = [
+            (self.extents[i + 1] - self.extents[i]) / v
+            for i in range(len(self.extents) - 1)
+        ]
+        for B, dt in zip(self.fields, dts):
+            omega = c * perp(B, S)
+            S = rotate(S, omega, dt * np.linalg.norm(omega))
+        return S
